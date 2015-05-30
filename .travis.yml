@@ -2,5 +2,5 @@ language: csharp
 solution: MonoDevelop.VersionControl.Mercurial/MonoDevelop.VersionControl.Mercurial.sln
 mono: latest
 install: 
-	- sudo apt-get install monodevelop
-	- nuget restore MonoDevelop.VersionControl.Mercurial
+ - sudo apt-get install monodevelop
+ - nuget restore MonoDevelop.VersionControl.Mercurial
