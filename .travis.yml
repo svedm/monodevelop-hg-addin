@@ -1,0 +1,3 @@
+language: csharp
+solution: MonoDevelop.VersionControl.Mercurial/MonoDevelop.VersionControl.Mercurial.sln
+mono: latest
