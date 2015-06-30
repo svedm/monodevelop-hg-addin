@@ -1,19 +1,24 @@
 ﻿using System;
+using MonoDevelop.Core;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
-	public class MercurialRepository : Repository
+	public class MercurialRepository : UrlBasedRepository
 	{
-		public MercurialRepository()
+		private readonly MercurialClient _mercurialClient;
+
+		public MercurialRepository(string rootPath)
 		{
+			this.RootPath = rootPath;
+			_mercurialClient = new MercurialClient(rootPath, "/usr/local/bin/hg");
 		}
-			
+
 
 		#region implemented abstract members of Repository
 
 		public override string GetBaseText(MonoDevelop.Core.FilePath localFile)
 		{
-			throw new NotImplementedException();
+			return OnGetTextAtRevision(localFile, new MercurialRevision(this, MercurialRevision.Head));
 		}
 
 		protected override Revision[] OnGetHistory(MonoDevelop.Core.FilePath localFile, Revision since)
@@ -81,9 +86,10 @@ namespace MonoDevelop.VersionControl.Mercurial
 			throw new NotImplementedException();
 		}
 
-		protected override string OnGetTextAtRevision(MonoDevelop.Core.FilePath repositoryPath, Revision revision)
+		protected override string OnGetTextAtRevision(FilePath repositoryPath, Revision revision)
 		{
-			throw new NotImplementedException();
+			var rev = new MercurialRevision(this, revision == null ? MercurialRevision.Head : revision.Name);
+			return _mercurialClient.Cat(repositoryPath.FullPath, rev.RevisionNumber);
 		}
 
 		protected override RevisionPath[] OnGetRevisionChanges(Revision revision)
@@ -99,6 +105,18 @@ namespace MonoDevelop.VersionControl.Mercurial
 		protected override void OnUnignore(MonoDevelop.Core.FilePath[] localPath)
 		{
 			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region implemented abstract members of UrlBasedRepository
+
+		public override string[] SupportedProtocols
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
 		}
 
 		#endregion
