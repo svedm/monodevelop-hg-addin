@@ -5,12 +5,24 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.VersionControl.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hg.Net", "Hg.Net\Hg.Net.csproj", "{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.VersionControl.Tests", "MonoDevelop.VersionControl.Tests\MonoDevelop.VersionControl.Tests.csproj", "{25054E97-DAAA-4629-A36F-D83A8DBB2109}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{0D032303-69A3-44C0-8169-23F6E460C665}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D032303-69A3-44C0-8169-23F6E460C665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D032303-69A3-44C0-8169-23F6E460C665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D032303-69A3-44C0-8169-23F6E460C665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D032303-69A3-44C0-8169-23F6E460C665}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25054E97-DAAA-4629-A36F-D83A8DBB2109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25054E97-DAAA-4629-A36F-D83A8DBB2109}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25054E97-DAAA-4629-A36F-D83A8DBB2109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25054E97-DAAA-4629-A36F-D83A8DBB2109}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}.Release|Any CPU.ActiveCfg = Release|Any CPU
