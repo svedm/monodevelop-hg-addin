@@ -2,7 +2,8 @@ language: csharp
 solution: MonoDevelop.VersionControl.Mercurial/MonoDevelop.VersionControl.Mercurial.sln
 mono: latest
 install: 
- - sudo apt-get install build-essential automake checkinstall intltool git libssh2
+ - sudo apt-get update
+ - sudo apt-get install build-essential automake checkinstall intltool git libssh2-1-dev
  - sudo apt-get install mono-complete mono-addins-utils gtk-sharp2 gnome-sharp2
  - nuget restore MonoDevelop.VersionControl.Mercurial
 script:
