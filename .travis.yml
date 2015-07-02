@@ -7,6 +7,7 @@ install:
  - sudo apt-get install mono-complete mono-addins-utils gtk-sharp2 gnome-sharp2
  - nuget restore MonoDevelop.VersionControl.Mercurial
 script:
+ - git submodule update --init --recursive
  - cd External
  - ./configure --profile=stable
  - make
