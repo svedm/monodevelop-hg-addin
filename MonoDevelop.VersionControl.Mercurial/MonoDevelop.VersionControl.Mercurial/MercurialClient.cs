@@ -10,8 +10,18 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public MercurialClient(string repoPath, string mercurialPath)
 		{
+			if (string.IsNullOrEmpty(repoPath))
+			{
+				throw new ArgumentException("repoPath cannot be empty");
+			}
+
 			_hgClient = new HgClient(mercurialPath);
 			_hgClient.Connect(repoPath);
+		}
+
+		public void Init()
+		{
+			_hgClient.ExecuteCommand(new string[] { "init" });
 		}
 
 		public string Cat(string path, string revision)
@@ -27,7 +37,31 @@ namespace MonoDevelop.VersionControl.Mercurial
 				args.Add("--rev");
 				args.Add(revision);
 			}
+			var x = _hgClient.ExecuteCommand(args);
+			return x.Response;
+		}
+
+		public string Add(string[] files)
+		{
+			if (files.Length == 0)
+			{
+				throw new ArgumentException("Please enter a file");
+			}
+
+			var args = new List<string> { "add" };
+			args.AddRange(files);
+
 			return _hgClient.ExecuteCommand(args).Response;
+		}
+
+		public string Commit(string message)
+		{
+			if (string.IsNullOrEmpty(message))
+			{
+				throw new ArgumentException("Please write commit message");
+			}
+
+			return _hgClient.ExecuteCommand(new string[] { "commit", "-m", message }).Response;
 		}
 	}
 }
