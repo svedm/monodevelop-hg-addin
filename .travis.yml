@@ -4,3 +4,8 @@ mono: latest
 install: 
  - sudo apt-get install monodevelop
  - nuget restore MonoDevelop.VersionControl.Mercurial
+script:
+ - cd External
+ - ./configure --profile=stable
+ - make
+ - cd ..
