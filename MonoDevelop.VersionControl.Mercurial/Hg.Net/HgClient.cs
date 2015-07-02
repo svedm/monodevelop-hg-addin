@@ -54,6 +54,39 @@ namespace Hg.Net
 			return true;
 		}
 
+		public static void Init(string path, string hgPath)
+		{
+			if (string.IsNullOrEmpty(path))
+			{
+				throw new ArgumentException("Path cannot be empty");
+			}
+
+			if (string.IsNullOrEmpty(hgPath))
+			{
+				throw new ArgumentException("Mercurial path cannot be empty");
+			}
+
+			var args = string.Format("init {0}", path);
+
+			var processInfo = new ProcessStartInfo(hgPath, args)
+				{
+					RedirectStandardInput = true,
+					RedirectStandardError = true,
+					RedirectStandardOutput = true,
+					CreateNoWindow = true,
+					UseShellExecute = false
+				};
+
+			Environment.SetEnvironmentVariable("HGENCODING", "UTF-8");
+			var process = Process.Start(processInfo);
+			process.WaitForExit();
+
+			if (process.ExitCode != 0 || !string.IsNullOrEmpty(process.StandardError.ReadToEnd()))
+			{
+				throw new Exception("Init reposiory failed on path " + path);
+			}
+		}
+
 		private void Hello()
 		{
 			var response = ReadResponse();

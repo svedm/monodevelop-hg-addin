@@ -19,9 +19,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 			_hgClient.Connect(repoPath);
 		}
 
-		public void Init()
+		public static void Init(string path, string hgPath)
 		{
-			_hgClient.ExecuteCommand(new string[] { "init" });
+			HgClient.Init(path, hgPath);
 		}
 
 		public string Cat(string path, string revision)

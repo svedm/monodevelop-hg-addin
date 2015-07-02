@@ -24,10 +24,11 @@ namespace MonoDevelop.VersionControl.Tests
 			Directory.CreateDirectory(_testRepoPath);
 
 			var os = Environment.OSVersion.VersionString.ToLower();
-			var hgPath = (os.Contains("win")) ? "hg" : (os.Contains("mac")) ? "/usr/local/bin/hg" : "/usr/bin/hg";
+			var hgPath = (os.Contains("win")) ? "hg" : (os.Contains("mac")) ? "/usr/local/bin/hg" : "/usr/local/bin/hg";
+
+			MercurialClient.Init(_testRepoPath, hgPath);
 
 			_mc = new MercurialClient(_testRepoPath, hgPath);
-			_mc.Init();
 
 			_testFilePath = Path.Combine(_testRepoPath, "qwe.txt");
 			File.AppendAllText(_testFilePath, _testFileContent);
