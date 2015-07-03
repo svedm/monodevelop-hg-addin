@@ -138,7 +138,7 @@ namespace Hg.Net
 
 			lock (_cmdServer)
 			{
-				_cmdServer.StandardInput.BaseStream.Write(commandBuffer, 0, commandBuffer.Length);
+				_cmdServer.StandardInput.BaseStream.Write(commandBuffer, 0, commandBuffer.Length); //TODO: wtf? why it returns "abort: unknown command ﻿runcommand" on mac or linux
 				_cmdServer.StandardInput.BaseStream.Write(lenBuffer, 0, lenBuffer.Length);
 				_cmdServer.StandardInput.BaseStream.Write(argBuffer, 0, argBuffer.Length);
 				_cmdServer.StandardInput.BaseStream.Flush();
