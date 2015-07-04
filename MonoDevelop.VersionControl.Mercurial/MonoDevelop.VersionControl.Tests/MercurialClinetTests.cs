@@ -21,6 +21,11 @@ namespace MonoDevelop.VersionControl.Tests
 		{
 			_currentPath = Directory.GetCurrentDirectory();
 			_testRepoPath = Path.Combine(_currentPath, "testRepo");
+			if (Directory.Exists(_testRepoPath))
+			{
+				Directory.Delete(_testRepoPath, true);
+			}
+
 			Directory.CreateDirectory(_testRepoPath);
 
 			var os = Environment.OSVersion.VersionString.ToLower();
