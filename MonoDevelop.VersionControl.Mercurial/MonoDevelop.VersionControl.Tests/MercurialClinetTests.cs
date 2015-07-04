@@ -3,6 +3,7 @@ using System;
 using MonoDevelop.VersionControl.Mercurial;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace MonoDevelop.VersionControl.Tests
 {
@@ -29,7 +30,7 @@ namespace MonoDevelop.VersionControl.Tests
 			Directory.CreateDirectory(_testRepoPath);
 
 			var os = Environment.OSVersion.VersionString.ToLower();
-			var hgPath = (os.Contains("win")) ? "hg" : (os.Contains("mac")) ? "/usr/local/bin/hg" : "/usr/local/bin/hg";
+			var hgPath = (os.Contains("win")) ? "hg" : (TestsUtils.IsRunningOnMac()) ? "/usr/local/bin/hg" : "/usr/bin/hg";
 
 			MercurialClient.Init(_testRepoPath, hgPath);
 
