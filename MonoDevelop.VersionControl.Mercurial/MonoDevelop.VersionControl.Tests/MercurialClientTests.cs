@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace MonoDevelop.VersionControl.Tests
 {
 	[TestFixture]
-	public class MercurialClinetTests
+	public class MercurialClientTests
 	{
 		private string _currentPath;
 		private string _testRepoPath;
