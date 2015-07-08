@@ -134,7 +134,11 @@ namespace Hg.Net
 				return b.ToArray();
 			}).ToArray();
 
-			var lenBuffer = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(argBuffer.Length));
+			var lenBuffer = BitConverter.GetBytes(argBuffer.Length);
+			if (BitConverter.IsLittleEndian)
+			{
+				Array.Reverse(lenBuffer);
+			}
 
 			lock (_cmdServer)
 			{
