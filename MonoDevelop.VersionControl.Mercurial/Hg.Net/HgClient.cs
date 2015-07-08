@@ -39,8 +39,8 @@ namespace Hg.Net
 				CreateNoWindow = true,
 				UseShellExecute = false
 			};
+			serverInfo.EnvironmentVariables.Add("HGENCODING", "UTF-8");
 
-			Environment.SetEnvironmentVariable("HGENCODING", "UTF-8");
 			try
 			{
 				_cmdServer = Process.Start(serverInfo);
@@ -76,8 +76,8 @@ namespace Hg.Net
 					CreateNoWindow = true,
 					UseShellExecute = false
 				};
+			processInfo.EnvironmentVariables.Add("HGENCODING", "UTF-8");
 
-			Environment.SetEnvironmentVariable("HGENCODING", "UTF-8");
 			var process = Process.Start(processInfo);
 			process.WaitForExit();
 
