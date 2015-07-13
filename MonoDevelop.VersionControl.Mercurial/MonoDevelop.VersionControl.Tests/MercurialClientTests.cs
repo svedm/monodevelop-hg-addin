@@ -4,6 +4,7 @@ using MonoDevelop.VersionControl.Mercurial;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace MonoDevelop.VersionControl.Tests
 {
@@ -20,6 +21,8 @@ namespace MonoDevelop.VersionControl.Tests
 		[TestFixtureSetUp]
 		public void Init()
 		{
+			Console.InputEncoding = new UTF8Encoding(false);
+
 			_currentPath = Directory.GetCurrentDirectory();
 			_testRepoPath = Path.Combine(_currentPath, "testRepo");
 			if (Directory.Exists(_testRepoPath))
