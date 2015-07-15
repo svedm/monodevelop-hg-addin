@@ -29,6 +29,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Channel.cs" />
@@ -37,6 +38,8 @@
     <Compile Include="HgClient.cs" />
     <Compile Include="Models\ServerResponse.cs" />
     <Compile Include="ArgumentHelper.cs" />
+    <Compile Include="XmlHelper.cs" />
+    <Compile Include="Models\CommandServerRevision.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
