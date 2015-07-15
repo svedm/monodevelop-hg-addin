@@ -32,7 +32,7 @@
     <Compile Include="Properties\AddinInfo.cs" />
     <Compile Include="MercurialRepository.cs" />
     <Compile Include="MercurialClient.cs" />
-    <Compile Include="Properties\MercurialRevision.cs" />
+    <Compile Include="MercurialRevision.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
