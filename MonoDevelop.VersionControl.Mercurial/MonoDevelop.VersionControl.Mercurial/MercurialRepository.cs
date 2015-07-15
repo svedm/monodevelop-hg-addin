@@ -1,5 +1,7 @@
 ﻿using System;
 using MonoDevelop.Core;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -16,13 +18,15 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		#region implemented abstract members of Repository
 
-		public override string GetBaseText(MonoDevelop.Core.FilePath localFile)
+		public override string GetBaseText(FilePath localFile)
 		{
 			return OnGetTextAtRevision(localFile, new MercurialRevision(this, MercurialRevision.Head));
 		}
 
-		protected override Revision[] OnGetHistory(MonoDevelop.Core.FilePath localFile, Revision since)
+		protected override Revision[] OnGetHistory(FilePath localFile, Revision since)
 		{
+			var res = _mercurialClient.Log(((MercurialRevision)since).RevisionNumber, new List<string> { localFile.FullPath }).Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message));
+
 			throw new NotImplementedException();
 		}
 
