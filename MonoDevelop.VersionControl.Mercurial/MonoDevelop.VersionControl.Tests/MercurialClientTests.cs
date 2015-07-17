@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Collections.Generic;
 
 namespace MonoDevelop.VersionControl.Tests
 {
@@ -57,6 +58,13 @@ namespace MonoDevelop.VersionControl.Tests
 		{
 			var res = _mc.Cat(_testFilePath, null);
 			Assert.AreEqual(_testFileContent, res);
+		}
+
+		[Test]
+		public void GetHistory()
+		{
+			var res = _mc.Log(null, new List<string> { _testFilePath });
+
 		}
 	}
 }
