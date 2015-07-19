@@ -47,12 +47,6 @@ namespace MonoDevelop.VersionControl.Tests
 			_mc.Commit("first commit");
 		}
 
-		[TestFixtureTearDown]
-		public void CleanUp()
-		{
-			Directory.Delete(_testRepoPath, true);
-		}
-
 		[Test]
 		public void CatWithoutRevision()
 		{
@@ -64,7 +58,13 @@ namespace MonoDevelop.VersionControl.Tests
 		public void GetHistory()
 		{
 			var res = _mc.Log(null, new List<string> { _testFilePath });
+			Assert.AreEqual(res[0].Message, "first commit");
+		}
 
+		[TestFixtureTearDown]
+		public void CleanUp()
+		{
+			Directory.Delete(_testRepoPath, true);
 		}
 	}
 }
