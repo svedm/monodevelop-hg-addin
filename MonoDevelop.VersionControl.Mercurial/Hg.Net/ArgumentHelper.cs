@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Hg.Net
 {
@@ -22,17 +23,15 @@ namespace Hg.Net
 
 		public void AddIfNotNullOrEmpty(bool throwExceptonIfFalse, params string[] arguments)
 		{
-			foreach (var argument in arguments)
+			if (arguments.Any(x => string.IsNullOrEmpty(x)))
 			{
-				if (!string.IsNullOrEmpty(argument))
+				if (throwExceptonIfFalse)
 				{
-					_argumentsList.Add(argument);
+					throw new ArgumentException("can not be bull or empty", arguments.First(x => string.IsNullOrEmpty(x)));
 				}
-				else if (throwExceptonIfFalse)
-				{
-					throw new ArgumentException("can not be bull or empty", argument);
-				}
+				return;
 			}
+			_argumentsList.AddRange(arguments);
 		}
 
 		public void Add(params string[] argumets)
@@ -47,7 +46,7 @@ namespace Hg.Net
 
 		public override string ToString()
 		{
-			return string.Concat(_argumentsList, ' ');
+			return string.Join(" ", _argumentsList);
 		}
 	}
 }
