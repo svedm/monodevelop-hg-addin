@@ -3,11 +3,11 @@ using Hg.Net;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace MonoDevelop.VersionControl.Mercurial
+namespace Hg.Net
 {
 	public class MercurialClient
 	{
-		private readonly Hg.Net.HgClient _hgClient;
+		private readonly HgCommandServerClient _hgClient;
 
 		public MercurialClient(string repoPath, string mercurialPath)
 		{
@@ -16,13 +16,13 @@ namespace MonoDevelop.VersionControl.Mercurial
 				throw new ArgumentException("repoPath cannot be empty");
 			}
 
-			_hgClient = new HgClient(mercurialPath);
+			_hgClient = new HgCommandServerClient(mercurialPath);
 			_hgClient.Connect(repoPath);
 		}
 
 		public static void Init(string path, string hgPath)
 		{
-			HgClient.Init(path, hgPath);
+			HgCommandServerClient.Init(path, hgPath);
 		}
 
 		public string Cat(string path, string revision)
@@ -96,8 +96,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				throw new Exception("Failed to get log. Error: " + resp.Error);
 			}
-
-
+				
 			try 
 			{
 				return XmlHelper.GetRevisions(resp.Response);

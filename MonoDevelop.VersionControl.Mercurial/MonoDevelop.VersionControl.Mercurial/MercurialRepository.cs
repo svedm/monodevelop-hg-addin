@@ -2,6 +2,7 @@
 using MonoDevelop.Core;
 using System.Linq;
 using System.Collections.Generic;
+using Hg.Net;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {

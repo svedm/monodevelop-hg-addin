@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Hg.Net
 {
-	public class HgClient
+	public class HgCommandServerClient
 	{
 		public List<string> Capabilities { get; private set; }
 		public string HgEncoding { get; private set; }
@@ -17,12 +17,12 @@ namespace Hg.Net
 		private const byte HeaderLength = 5;
 		private Process _cmdServer;
 
-		public HgClient()
+		public HgCommandServerClient()
 		{
 
 		}
 
-		public HgClient(string hgPath)
+		public HgCommandServerClient(string hgPath)
 			: this()
 		{
 			_hgPath = hgPath;

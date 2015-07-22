@@ -2,6 +2,7 @@
 using MonoDevelop.VersionControl.Mercurial;
 using System.IO;
 using System.Runtime.InteropServices;
+using Hg.Net;
 
 namespace TestConsoleApp
 {
