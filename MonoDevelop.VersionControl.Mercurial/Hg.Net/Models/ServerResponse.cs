@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Hg.Net
+namespace Hg.Net.Models
 {
 	public class ServerResponse
 	{
@@ -13,7 +13,7 @@ namespace Hg.Net
 			get { return string.IsNullOrEmpty(_message) ? Encoding.UTF8.GetString(Buffer) : _message; }
 		}
 
-		private string _message;
+		private readonly string _message;
 
 		public ServerResponse(Channel channel, byte[] buffer)
 		{

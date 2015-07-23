@@ -23,11 +23,11 @@ namespace Hg.Net
 
 		public void AddIfNotNullOrEmpty(bool throwExceptonIfFalse, params string[] arguments)
 		{
-			if (arguments.Any(x => string.IsNullOrEmpty(x)))
+			if (arguments.Any(string.IsNullOrEmpty))
 			{
 				if (throwExceptonIfFalse)
 				{
-					throw new ArgumentException("can not be bull or empty", arguments.First(x => string.IsNullOrEmpty(x)));
+					throw new ArgumentException("can not be bull or empty", arguments.First(string.IsNullOrEmpty));
 				}
 				return;
 			}

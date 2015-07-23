@@ -1,4 +1,4 @@
-﻿namespace Hg.Net
+﻿namespace Hg.Net.Models
 {
 	public class CommandResponse
 	{

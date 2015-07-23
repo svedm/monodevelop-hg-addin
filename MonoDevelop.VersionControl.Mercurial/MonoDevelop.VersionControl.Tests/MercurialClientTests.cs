@@ -1,12 +1,9 @@
-﻿using NUnit.Framework;
-using System;
-using MonoDevelop.VersionControl.Mercurial;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using Hg.Net;
+using NUnit.Framework;
 
 namespace MonoDevelop.VersionControl.Tests
 {
@@ -17,7 +14,7 @@ namespace MonoDevelop.VersionControl.Tests
 		private string _testRepoPath;
 		private MercurialClient _mc;
 		private string _testFilePath;
-		private const string _testFileContent = "qweqwe";
+		private const string TestFileContent = "qweqwe";
 
 
 		[TestFixtureSetUp]
@@ -42,9 +39,9 @@ namespace MonoDevelop.VersionControl.Tests
 			_mc = new MercurialClient(_testRepoPath, hgPath);
 
 			_testFilePath = Path.Combine(_testRepoPath, "qwe.txt");
-			File.AppendAllText(_testFilePath, _testFileContent);
+			File.AppendAllText(_testFilePath, TestFileContent);
 
-			_mc.Add(new string[] { _testFilePath });
+			_mc.Add(new [] { _testFilePath });
 			_mc.Commit("first commit");
 		}
 
@@ -52,7 +49,7 @@ namespace MonoDevelop.VersionControl.Tests
 		public void CatWithoutRevision()
 		{
 			var res = _mc.Cat(_testFilePath, null);
-			Assert.AreEqual(_testFileContent, res);
+			Assert.AreEqual(TestFileContent, res);
 		}
 
 		[Test]

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Remoting;
 using System.Text;
+using Hg.Net.Models;
 
 namespace Hg.Net
 {
@@ -79,12 +80,15 @@ namespace Hg.Net
 			processInfo.EnvironmentVariables.Add("HGENCODING", "UTF-8");
 
 			var process = Process.Start(processInfo);
-			process.WaitForExit();
 
-			if (process.ExitCode != 0 || !string.IsNullOrEmpty(process.StandardError.ReadToEnd()))
-			{
-				throw new Exception("Init reposiory failed on path " + path);
-			}
+		    if (process == null) throw new Exception("Failed to start process");
+
+		    process.WaitForExit();
+
+		    if (process.ExitCode != 0 || !string.IsNullOrEmpty(process.StandardError.ReadToEnd()))
+		    {
+		        throw new Exception("Init reposiory failed on path " + path);
+		    }
 		}
 
 		private void Hello()

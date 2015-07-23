@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml;
 
-namespace Hg.Net
+namespace Hg.Net.Models
 {
 	public class CommandServerRevision
 	{

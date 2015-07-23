@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
+using Hg.Net.Models;
 
 namespace Hg.Net
 {
