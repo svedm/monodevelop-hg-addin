@@ -41,6 +41,7 @@
     <Compile Include="Models\CommandServerRevision.cs" />
     <Compile Include="HgCommandServerClient.cs" />
     <Compile Include="MercurialClient.cs" />
+    <Compile Include="Models\Status.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

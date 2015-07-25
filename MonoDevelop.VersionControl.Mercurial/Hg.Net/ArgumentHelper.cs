@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hg.Net.Models;
 
 namespace Hg.Net
 {
@@ -47,6 +48,30 @@ namespace Hg.Net
 		public override string ToString()
 		{
 			return string.Join(" ", _argumentsList);
+		}
+
+		public static string ArgumentForStatus (Status status)
+		{
+			switch (status) {
+				case Status.Added:
+					return "--added";
+				case Status.Clean:
+					return "--clean";
+				case Status.Ignored:
+					return "--ignored";
+				case Status.Modified:
+					return "--modified";
+				case Status.Removed:
+					return "--removed";
+				case Status.Unknown:
+					return "--unknown";
+				case Status.Missing:
+					return "--deleted";
+				case Status.All:
+					return "--all";
+				default:
+					return string.Empty;
+			}
 		}
 	}
 }
