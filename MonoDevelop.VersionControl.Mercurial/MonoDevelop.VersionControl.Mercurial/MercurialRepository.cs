@@ -37,49 +37,16 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			if (paths != null)
 			{
-				return paths.Select(p => CheckFileStatus(this, p));
+				return paths.Select(p => CheckStatus(this, p));
 			}
 
 			return new List<VersionInfo>();
 		}
 
-		private VersionInfo CheckFileStatus(Repository repo, string path)
-		{
-			var shortPath = path.Split(Path.DirectorySeparatorChar).Last();
-			var statuses = _mercurialClient.Status(new[]{ path });
-
-			if (!statuses.ContainsKey(shortPath)) 
-			{
-				statuses[path] = Status.Clean;
-			}
-
-			return new VersionInfo(path, repo.RootPath, Directory.Exists(path), ConvertStatus(statuses[path]), null, VersionStatus.Unversioned, null);
-		}
-
-		private static VersionStatus ConvertStatus (Status status) 
-		{
-			switch (status) 
-			{
-				case Status.Added:
-					return VersionStatus.Versioned | VersionStatus.ScheduledAdd;
-				case Status.Conflicted:
-					return VersionStatus.Versioned | VersionStatus.Conflicted;
-				case Status.Removed:
-					return VersionStatus.Versioned | VersionStatus.ScheduledDelete;
-				case Status.Ignored:
-					return VersionStatus.Versioned | VersionStatus.Ignored;
-				case Status.Modified:
-					return VersionStatus.Versioned | VersionStatus.Modified;
-				case Status.Clean:
-					return VersionStatus.Versioned;
-			}
-
-			return VersionStatus.Unversioned;
-		}
-
 		protected override VersionInfo[] OnGetDirectoryVersionInfo(MonoDevelop.Core.FilePath localDirectory, bool getRemoteStatus, bool recursive)
 		{
-			throw new NotImplementedException();
+			localDirectory = ((FilePath)localDirectory).CanonicalPath;
+			return CheckStatuses(this, localDirectory);
 		}
 
 		protected override Repository OnPublish(string serverPath, MonoDevelop.Core.FilePath localPath, MonoDevelop.Core.FilePath[] files, string message, MonoDevelop.Core.IProgressMonitor monitor)
@@ -163,6 +130,62 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				throw new NotImplementedException();
 			}
+		}
+
+		#endregion
+
+		#region support methods
+
+		private VersionInfo[] CheckStatuses(Repository repo, string path)
+		{
+			var statuses = _mercurialClient.Status(new[]{ path });
+			var result = new List<VersionInfo>();
+
+			foreach (var status in statuses)
+			{
+				result.Add(GetInfoFromStatus(status.Value, status.Key, repo));
+			}
+
+			return result.ToArray();
+		}
+
+		private VersionInfo CheckStatus(Repository repo, string path)
+		{
+			var shortPath = path.Split(Path.DirectorySeparatorChar).Last();
+			var statuses = _mercurialClient.Status(new[]{ path });
+
+			if (!statuses.ContainsKey(shortPath)) 
+			{
+				statuses[path] = Status.Clean;
+			}
+
+			return GetInfoFromStatus(statuses[path], path, repo);
+		}
+
+		private VersionInfo GetInfoFromStatus(Status status, string path, Repository repo)
+		{
+			return new VersionInfo(path, repo.RootPath, Directory.Exists(path), ConvertStatus(status), null, VersionStatus.Unversioned, null);
+		}
+
+		private static VersionStatus ConvertStatus (Status status) 
+		{
+			switch (status) 
+			{
+				case Status.Added:
+					return VersionStatus.Versioned | VersionStatus.ScheduledAdd;
+				case Status.Conflicted:
+					return VersionStatus.Versioned | VersionStatus.Conflicted;
+				case Status.Removed:
+					return VersionStatus.Versioned | VersionStatus.ScheduledDelete;
+				case Status.Ignored:
+					return VersionStatus.Versioned | VersionStatus.Ignored;
+				case Status.Modified:
+					return VersionStatus.Versioned | VersionStatus.Modified;
+				case Status.Clean:
+					return VersionStatus.Versioned;
+			}
+
+			return VersionStatus.Unversioned;
 		}
 
 		#endregion
