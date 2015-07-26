@@ -3,6 +3,8 @@ using MonoDevelop.Core;
 using System.Linq;
 using System.Collections.Generic;
 using Hg.Net;
+using System.IO;
+using Hg.Net.Models;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -26,14 +28,53 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override Revision[] OnGetHistory(FilePath localFile, Revision since)
 		{
-			var res = _mercurialClient.Log(((MercurialRevision)since).RevisionNumber, new List<string> { localFile.FullPath }).Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message));
-
-			throw new NotImplementedException();
+			return _mercurialClient.Log(((MercurialRevision)since).RevisionNumber,
+				new List<string> { localFile.FullPath })
+					.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
 		}
 
 		protected override System.Collections.Generic.IEnumerable<VersionInfo> OnGetVersionInfo(System.Collections.Generic.IEnumerable<MonoDevelop.Core.FilePath> paths, bool getRemoteStatus)
 		{
-			throw new NotImplementedException();
+			if (paths != null)
+			{
+				return paths.Select(p => CheckFileStatus(this, p));
+			}
+
+			return new List<VersionInfo>();
+		}
+
+		private VersionInfo CheckFileStatus(Repository repo, string path)
+		{
+			var shortPath = path.Split(Path.DirectorySeparatorChar).Last();
+			var statuses = _mercurialClient.Status(new[]{ path });
+
+			if (!statuses.ContainsKey(shortPath)) 
+			{
+				statuses[path] = Status.Clean;
+			}
+
+			return new VersionInfo(path, repo.RootPath, Directory.Exists(path), ConvertStatus(statuses[path]), null, VersionStatus.Unversioned, null);
+		}
+
+		private static VersionStatus ConvertStatus (Status status) 
+		{
+			switch (status) 
+			{
+				case Status.Added:
+					return VersionStatus.Versioned | VersionStatus.ScheduledAdd;
+				case Status.Conflicted:
+					return VersionStatus.Versioned | VersionStatus.Conflicted;
+				case Status.Removed:
+					return VersionStatus.Versioned | VersionStatus.ScheduledDelete;
+				case Status.Ignored:
+					return VersionStatus.Versioned | VersionStatus.Ignored;
+				case Status.Modified:
+					return VersionStatus.Versioned | VersionStatus.Modified;
+				case Status.Clean:
+					return VersionStatus.Versioned;
+			}
+
+			return VersionStatus.Unversioned;
 		}
 
 		protected override VersionInfo[] OnGetDirectoryVersionInfo(MonoDevelop.Core.FilePath localDirectory, bool getRemoteStatus, bool recursive)
