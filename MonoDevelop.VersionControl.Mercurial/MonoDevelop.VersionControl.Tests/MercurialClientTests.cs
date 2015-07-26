@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Hg.Net;
+using Hg.Net.Models;
 using NUnit.Framework;
 
 namespace MonoDevelop.VersionControl.Tests
@@ -57,6 +58,14 @@ namespace MonoDevelop.VersionControl.Tests
 		{
 			var res = _mc.Log(null, new List<string> { _testFilePath });
 			Assert.AreEqual(res[0].Message, "first commit");
+		}
+
+		[Test]
+		public void CheckStatus()
+		{
+			File.WriteAllText(_testFilePath, "asdasd");
+			var res = _mc.Status(new List<string> { _testFilePath });
+			Assert.IsTrue(res.Values.Contains(Status.Modified));
 		}
 
 		[TestFixtureTearDown]
