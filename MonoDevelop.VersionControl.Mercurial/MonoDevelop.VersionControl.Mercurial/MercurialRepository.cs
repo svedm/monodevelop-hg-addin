@@ -51,7 +51,24 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override Repository OnPublish(string serverPath, MonoDevelop.Core.FilePath localPath, MonoDevelop.Core.FilePath[] files, string message, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				var success = _mercurialClient.Push(serverPath);
+				if(success)
+				{
+					monitor.ReportSuccess("Successfuly pushed");
+				}
+				else
+				{
+					monitor.ReportError("Failed");
+				}
+			}
+			catch(Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
+
+			return new MercurialRepository(serverPath);
 		}
 
 		protected override void OnUpdate(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
