@@ -158,6 +158,7 @@ namespace Hg.Net
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("push");
+
 			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", toRevision);
 			argumentHelper.AddIf(force, "--force");
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
@@ -165,13 +166,32 @@ namespace Hg.Net
 			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
 
 			var result = _hgClient.ExecuteCommand (argumentHelper.GetList());
-			if (result.ResultCode != 1 && result.ResultCode != 0) {
+			if (result.ResultCode != 1 && result.ResultCode != 0) 
+			{
 				throw new Exception("Error pushing");
 			}
 
-			return 0 == result.ResultCode;
+			return result.ResultCode == 0;
 		}
 
+		public bool Update (string revision, bool discardUncommittedChanges=false, bool updateAcrossBranches=false, DateTime toDate=default(DateTime))
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("update");
+
+			argumentHelper.AddIf(discardUncommittedChanges, "--clean");
+			argumentHelper.AddIf(updateAcrossBranches, "--check");
+			argumentHelper.AddFormattedDateArgument ("--date", toDate);
+			argumentHelper.AddIf(!string.IsNullOrEmpty (revision), revision);
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
+			{
+				throw new Exception("Error updating");
+			}
+
+			return result.ResultCode == 0;
+		}
 	}
 }
 

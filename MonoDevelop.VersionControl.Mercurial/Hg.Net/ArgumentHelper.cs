@@ -40,6 +40,15 @@ namespace Hg.Net
             _argumentsList.AddRange(argumets);
         }
 
+		public void AddFormattedDateArgument(string datePrefix, DateTime date)
+		{
+			if (default(DateTime) != date) 
+			{
+				_argumentsList.Add(datePrefix);
+				_argumentsList.Add(date.ToString ("yyyy-MM-dd HH:mm:ss"));
+			}
+		}
+
         public List<string> GetList()
         {
             return _argumentsList;
