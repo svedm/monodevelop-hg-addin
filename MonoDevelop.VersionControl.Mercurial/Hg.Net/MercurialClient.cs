@@ -226,6 +226,34 @@ namespace Hg.Net
 
 			return result.ResultCode == 0;
 		}
+
+		public void Revert (string revision, IEnumerable<string> files, DateTime date=default(DateTime), bool saveBackups=true, string includePattern=null, string excludePattern=null, bool dryRun=false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("revert");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", revision);
+			argumentHelper.AddFormattedDateArgument("--date", date);
+			argumentHelper.AddIf(!saveBackups, "--no-backup");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--include", includePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
+			argumentHelper.AddIf(dryRun, "--dry-run");
+
+			if (files == null || files.Count() == null)
+			{
+				argumentHelper.Add("--all");
+			} else 
+			{
+				argumentHelper.Add(files.ToArray());
+			}
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+
+			if (result.ResultCode != 0)
+			{
+				throw new Exception("Error reverting");
+			}
+		}
 	}
 }
 
