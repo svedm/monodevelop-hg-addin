@@ -98,7 +98,16 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnCommit(ChangeSet changeSet, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			try 
+			{
+				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => Path.Combine(changeSet.BaseLocalPath, i.LocalPath)).ToArray());
+			} 
+			catch(Exception ex) 
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
+
+			monitor.ReportSuccess(string.Empty);
 		}
 
 		protected override void OnCheckout(MonoDevelop.Core.FilePath targetLocalPath, Revision rev, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
