@@ -63,7 +63,41 @@ namespace Hg.Net
 				throw new ArgumentException("Please write commit message");
 			}
 
-			return _hgClient.ExecuteCommand(new[] { "commit", "-m", message }).Response;
+			return Commit(message, null);
+		}
+
+		public string Commit (string message, IEnumerable<string> files, bool addAndRemoveUnknowns=false, bool closeBranch=false,
+			string includePattern=null, string excludePattern=null, string messageLog=null, DateTime date=default(DateTime), string user=null)
+		{
+			if (string.IsNullOrEmpty(message))
+			{
+				throw new ArgumentException("Please write commit message");
+			}
+
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("commit");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--message", message);
+			argumentHelper.AddIf(addAndRemoveUnknowns, "--addremove");
+			argumentHelper.AddIf(closeBranch, "--close-branch");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--include", includePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--logfile", messageLog);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--user", user);
+			argumentHelper.AddFormattedDateArgument("--date", date);
+
+			if (files != null)
+			{
+				argumentHelper.Add(files.ToArray());
+			}
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0) 
+			{
+				throw new Exception("Error committing");
+			}
+
+			return result.Response;
 		}
 
 		public IList<CommandServerRevision> Log(string revisionRange, List<string> files, bool followAcrossCopy = false, bool followFirstMergeParent = false,
