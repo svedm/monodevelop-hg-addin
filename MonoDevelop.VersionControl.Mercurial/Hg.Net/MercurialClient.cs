@@ -153,6 +153,25 @@ namespace Hg.Net
 				return (Status)(input[0]);
 			return Hg.Net.Models.Status.Clean;
 		}
+
+		public bool Push (string destination, string toRevision=null, bool force=false, string branch=null, bool allowNewBranch=false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("push");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", toRevision);
+			argumentHelper.AddIf(force, "--force");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
+			argumentHelper.AddIf(allowNewBranch, "--new-branch");
+			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
+
+			var result = _hgClient.ExecuteCommand (argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0) {
+				throw new Exception("Error pushing");
+			}
+
+			return 0 == result.ResultCode;
+		}
+
 	}
 }
 
