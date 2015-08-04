@@ -60,7 +60,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 				}
 				else
 				{
-					monitor.ReportError("Failed");
+					monitor.ReportError("Failed", new Exception("Failed"));
 				}
 			}
 			catch(Exception ex)
