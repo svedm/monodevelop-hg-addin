@@ -73,7 +73,27 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnUpdate(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			foreach (var localPath in localPaths)
+			{
+				try
+				{
+					var success = _mercurialClient.Update(null);
+
+					if (success)
+					{
+						monitor.ReportSuccess("Successfuly updated " + localPath.FileName);
+					}
+					else
+					{
+						var errStr = "Update failed on " + localPath;
+						monitor.ReportError(errStr, new Exception(errStr));
+					}
+				}
+				catch (Exception ex)
+				{
+					monitor.ReportError(ex.Message, ex);
+				}
+			}
 		}
 
 		protected override void OnCommit(ChangeSet changeSet, MonoDevelop.Core.IProgressMonitor monitor)
