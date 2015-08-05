@@ -54,7 +54,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			try
 			{
 				var success = _mercurialClient.Push(serverPath);
-				if(success)
+				if (success)
 				{
 					monitor.ReportSuccess("Successfuly pushed");
 				}
@@ -63,7 +63,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					monitor.ReportError("Failed", new Exception("Failed"));
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				monitor.ReportError(ex.Message, ex);
 			}
@@ -98,11 +98,11 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnCommit(ChangeSet changeSet, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			try 
+			try
 			{
 				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => Path.Combine(changeSet.BaseLocalPath, i.LocalPath)).ToArray());
-			} 
-			catch(Exception ex) 
+			}
+			catch (Exception ex)
 			{
 				monitor.ReportError(ex.Message, ex);
 			}
@@ -134,7 +134,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			try
 			{
-				var rev = revision == null ? new MercurialRevision (this, MercurialRevision.Head) : (MercurialRevision)revision;
+				var rev = revision == null ? new MercurialRevision(this, MercurialRevision.Head) : (MercurialRevision)revision;
 
 				_mercurialClient.Revert(rev.ToString(), new List<string> { localPath });
 			}
@@ -166,7 +166,15 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnDeleteFiles(MonoDevelop.Core.FilePath[] localPaths, bool force, MonoDevelop.Core.IProgressMonitor monitor, bool keepLocal)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				_mercurialClient.Remove(localPaths.Select(p => p.FullPath.ToString()).ToList(), force: force);
+				monitor.ReportSuccess("Files successfuly removed");
+			}
+			catch (Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
 		}
 
 		protected override void OnDeleteDirectories(MonoDevelop.Core.FilePath[] localPaths, bool force, MonoDevelop.Core.IProgressMonitor monitor, bool keepLocal)
@@ -229,7 +237,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			var shortPath = path.Split(Path.DirectorySeparatorChar).Last();
 			var statuses = _mercurialClient.Status(new[]{ path });
 
-			if (!statuses.ContainsKey(shortPath)) 
+			if (!statuses.ContainsKey(shortPath))
 			{
 				statuses[path] = Status.Clean;
 			}
@@ -242,9 +250,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 			return new VersionInfo(path, repo.RootPath, Directory.Exists(path), ConvertStatus(status), null, VersionStatus.Unversioned, null);
 		}
 
-		private static VersionStatus ConvertStatus (Status status) 
+		private static VersionStatus ConvertStatus(Status status)
 		{
-			switch (status) 
+			switch (status)
 			{
 				case Status.Added:
 					return VersionStatus.Versioned | VersionStatus.ScheduledAdd;
