@@ -92,7 +92,7 @@ namespace Hg.Net
 			}
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
-			if (result.ResultCode != 1 && result.ResultCode != 0) 
+			if (result.ResultCode != 1 && result.ResultCode != 0)
 			{
 				throw new Exception("Error committing");
 			}
@@ -172,13 +172,13 @@ namespace Hg.Net
 			}
 
 			return result.Response.Split(new[]{ "\n" }, StringSplitOptions.RemoveEmptyEntries).Aggregate(new Dictionary<string,Status>(), (dict, line) =>
-			{
-				if (2 < line.Length)
 				{
-					dict[line.Substring(2)] = ParseStatus(line.Substring(0, 1));
-				}
-				return dict;
-			});
+					if (2 < line.Length)
+					{
+						dict[line.Substring(2)] = ParseStatus(line.Substring(0, 1));
+					}
+					return dict;
+				});
 		}
 
 		private static Status ParseStatus(string input)
@@ -188,7 +188,7 @@ namespace Hg.Net
 			return Hg.Net.Models.Status.Clean;
 		}
 
-		public bool Push (string destination, string toRevision=null, bool force=false, string branch=null, bool allowNewBranch=false)
+		public bool Push(string destination, string toRevision = null, bool force = false, string branch = null, bool allowNewBranch = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("push");
@@ -197,10 +197,10 @@ namespace Hg.Net
 			argumentHelper.AddIf(force, "--force");
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
 			argumentHelper.AddIf(allowNewBranch, "--new-branch");
-			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(destination), destination);
 
-			var result = _hgClient.ExecuteCommand (argumentHelper.GetList());
-			if (result.ResultCode != 1 && result.ResultCode != 0) 
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
 			{
 				throw new Exception("Error pushing");
 			}
@@ -208,15 +208,15 @@ namespace Hg.Net
 			return result.ResultCode == 0;
 		}
 
-		public bool Update (string revision, bool discardUncommittedChanges=false, bool updateAcrossBranches=false, DateTime toDate=default(DateTime))
+		public bool Update(string revision, bool discardUncommittedChanges = false, bool updateAcrossBranches = false, DateTime toDate = default(DateTime))
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("update");
 
 			argumentHelper.AddIf(discardUncommittedChanges, "--clean");
 			argumentHelper.AddIf(updateAcrossBranches, "--check");
-			argumentHelper.AddFormattedDateArgument ("--date", toDate);
-			argumentHelper.AddIf(!string.IsNullOrEmpty (revision), revision);
+			argumentHelper.AddFormattedDateArgument("--date", toDate);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(revision), revision);
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (result.ResultCode != 1 && result.ResultCode != 0)
@@ -227,7 +227,7 @@ namespace Hg.Net
 			return result.ResultCode == 0;
 		}
 
-		public void Revert (string revision, IEnumerable<string> files, DateTime date=default(DateTime), bool saveBackups=true, string includePattern=null, string excludePattern=null, bool dryRun=false)
+		public void Revert(string revision, IEnumerable<string> files, DateTime date = default(DateTime), bool saveBackups = true, string includePattern = null, string excludePattern = null, bool dryRun = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("revert");
@@ -239,10 +239,11 @@ namespace Hg.Net
 			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
 			argumentHelper.AddIf(dryRun, "--dry-run");
 
-			if (files == null || files.Count() == null)
+			if (files == null || files.Count() == 0)
 			{
 				argumentHelper.Add("--all");
-			} else 
+			}
+			else
 			{
 				argumentHelper.Add(files.ToArray());
 			}
@@ -252,6 +253,29 @@ namespace Hg.Net
 			if (result.ResultCode != 0)
 			{
 				throw new Exception("Error reverting");
+			}
+		}
+
+		public void Remove(IEnumerable<string> files, bool after = false, bool force = false, string includePattern = null, string excludePattern = null)
+		{
+			if (files == null || files.Count() == 0)
+			{
+				throw new ArgumentException("File list cannot be empty", "files");
+			}
+
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("remove");
+			argumentHelper.AddIf(after, "--after");
+			argumentHelper.AddIf(force, "--force");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--include", includePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
+			argumentHelper.Add(files.ToArray());
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+
+			if (result.ResultCode != 0)
+			{
+				throw new Exception(string.Format("Error removing {0}", string.Join(" , ", files.ToArray())));
 			}
 		}
 	}
