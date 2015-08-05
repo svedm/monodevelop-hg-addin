@@ -153,7 +153,15 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnAdd(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				_mercurialClient.Add(localPaths.Select(x => x.FullPath.ToString()).ToArray());
+				monitor.ReportSuccess("Files successfuly added");
+			}
+			catch (Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
 		}
 
 		protected override void OnDeleteFiles(MonoDevelop.Core.FilePath[] localPaths, bool force, MonoDevelop.Core.IProgressMonitor monitor, bool keepLocal)
