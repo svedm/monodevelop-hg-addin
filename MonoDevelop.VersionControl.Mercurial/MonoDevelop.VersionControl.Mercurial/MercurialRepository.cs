@@ -132,12 +132,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnRevertRevision(MonoDevelop.Core.FilePath localPath, Revision revision, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				var rev = revision == null ? new MercurialRevision (this, MercurialRevision.Head) : (MercurialRevision)revision;
+
+				_mercurialClient.Revert(rev.ToString(), new List<string> { localPath });
+			}
+			catch (Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
+
+			monitor.ReportSuccess(string.Empty);
 		}
 
 		protected override void OnRevertToRevision(MonoDevelop.Core.FilePath localPath, Revision revision, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			throw new NotImplementedException();
+			OnRevertRevision(localPath, revision, monitor);
 		}
 
 		protected override void OnAdd(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
