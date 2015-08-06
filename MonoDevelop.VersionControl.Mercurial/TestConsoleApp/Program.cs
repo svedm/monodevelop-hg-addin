@@ -1,5 +1,4 @@
 ﻿using System;
-using MonoDevelop.VersionControl.Mercurial;
 using System.IO;
 using System.Runtime.InteropServices;
 using Hg.Net;
@@ -22,8 +21,6 @@ namespace TestConsoleApp
 			var os = Environment.OSVersion.VersionString.ToLower();
 			var hgPath = (os.Contains("win")) ? "hg" : (IsRunningOnMac()) ? "/usr/local/bin/hg" : "/usr/bin/hg";
 
-			MercurialClient.Init(testRepoPath, hgPath);
-
 			var mc = new MercurialClient(testRepoPath, hgPath);
 
 			var testFilePath = Path.Combine(testRepoPath, "qwe.txt");
@@ -39,7 +36,8 @@ namespace TestConsoleApp
 		public static bool IsRunningOnMac ()
 		{
 			IntPtr buf = IntPtr.Zero;
-			try {
+			try 
+			{
 				buf = Marshal.AllocHGlobal (8192);
 				// This is a hacktastic way of getting sysname from uname ()
 				if (uname (buf) == 0) {
@@ -47,8 +45,12 @@ namespace TestConsoleApp
 					if (os == "Darwin")
 						return true;
 				}
-			} catch {
-			} finally {
+			}
+			catch
+			{
+			} 
+			finally
+			{
 				if (buf != IntPtr.Zero)
 					Marshal.FreeHGlobal (buf);
 			}

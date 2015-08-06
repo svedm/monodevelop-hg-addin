@@ -66,8 +66,8 @@ namespace Hg.Net
 			return Commit(message, null);
 		}
 
-		public string Commit (string message, IEnumerable<string> files, bool addAndRemoveUnknowns=false, bool closeBranch=false,
-			string includePattern=null, string excludePattern=null, string messageLog=null, DateTime date=default(DateTime), string user=null)
+		public string Commit(string message, IEnumerable<string> files, bool addAndRemoveUnknowns = false, bool closeBranch = false,
+			string includePattern = null, string excludePattern = null, string messageLog = null, DateTime date = default(DateTime), string user = null)
 		{
 			if (string.IsNullOrEmpty(message))
 			{
@@ -105,7 +105,7 @@ namespace Hg.Net
 			string searchText = null, bool showRemoves = false, bool onlyMerges = false, bool excludeMerges = false,
 			string user = null, string branch = null, string pruneRevisions = null, int limit = 0,
 			string includePattern = null, string excludePattern = null)
-	{
+		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("log", "--style", "xml");
 			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", revisionRange);
@@ -142,8 +142,8 @@ namespace Hg.Net
 			}
 		}
 
-		public IDictionary<string,Status> Status(IEnumerable<string> files, bool quiet = false,
-			Status onlyFilesWithThisStatus = Hg.Net.Models.Status.Default, bool showCopiedSources = false, 
+		public IDictionary<string, Status> Status(IEnumerable<string> files, bool quiet = false,
+			Status onlyFilesWithThisStatus = Models.Status.Default, bool showCopiedSources = false,
 			string fromRevision = null, string onlyRevision = null, string includePattern = null,
 			string excludePattern = null, bool recurseSubRepositories = false)
 		{
@@ -151,7 +151,7 @@ namespace Hg.Net
 
 			argumentHelper.Add("status");
 			argumentHelper.AddIf(quiet, "--quiet");
-			if (onlyFilesWithThisStatus != Hg.Net.Models.Status.Default)
+			if (onlyFilesWithThisStatus != Models.Status.Default)
 			{
 				argumentHelper.Add(ArgumentHelper.ArgumentForStatus(onlyFilesWithThisStatus));
 			}
@@ -171,7 +171,7 @@ namespace Hg.Net
 				throw new Exception("Error retrieving status");
 			}
 
-			return result.Response.Split(new[]{ "\n" }, StringSplitOptions.RemoveEmptyEntries).Aggregate(new Dictionary<string,Status>(), (dict, line) =>
+			return result.Response.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Aggregate(new Dictionary<string, Status>(), (dict, line) =>
 				{
 					if (2 < line.Length)
 					{
@@ -185,7 +185,7 @@ namespace Hg.Net
 		{
 			if (Enum.GetValues(typeof(Status)).Cast<Status>().Any(x => ((char)x) == input[0]))
 				return (Status)(input[0]);
-			return Hg.Net.Models.Status.Clean;
+			return Models.Status.Clean;
 		}
 
 		public bool Push(string destination, string toRevision = null, bool force = false, string branch = null, bool allowNewBranch = false)
@@ -227,7 +227,7 @@ namespace Hg.Net
 			return result.ResultCode == 0;
 		}
 
-		public void Revert(string revision, IEnumerable<string> files, DateTime date = default(DateTime), bool saveBackups = true, string includePattern = null, string excludePattern = null, bool dryRun = false)
+		public void Revert(string revision, IList<string> files, DateTime date = default(DateTime), bool saveBackups = true, string includePattern = null, string excludePattern = null, bool dryRun = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("revert");
@@ -239,7 +239,7 @@ namespace Hg.Net
 			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
 			argumentHelper.AddIf(dryRun, "--dry-run");
 
-			if (files == null || files.Count() == 0)
+			if (files == null || !files.Any())
 			{
 				argumentHelper.Add("--all");
 			}
@@ -256,9 +256,9 @@ namespace Hg.Net
 			}
 		}
 
-		public void Remove(IEnumerable<string> files, bool after = false, bool force = false, string includePattern = null, string excludePattern = null)
+		public void Remove(IList<string> files, bool after = false, bool force = false, string includePattern = null, string excludePattern = null)
 		{
-			if (files == null || files.Count() == 0)
+			if (files == null || !files.Any())
 			{
 				throw new ArgumentException("File list cannot be empty", "files");
 			}

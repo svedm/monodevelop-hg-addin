@@ -5,63 +5,63 @@ using Hg.Net.Models;
 
 namespace Hg.Net
 {
-    public class ArgumentHelper
-    {
-        private readonly List<string> _argumentsList;
+	public class ArgumentHelper
+	{
+		private readonly List<string> _argumentsList;
 
-        public ArgumentHelper()
-        {
-            _argumentsList = new List<string>();
-        }
-
-        public void AddIf(bool condition, params string[] arguments)
-        {
-            if (condition)
-            {
-                _argumentsList.AddRange(arguments);
-            }
-        }
-
-        public void AddIfNotNullOrEmpty(bool throwExceptonIfFalse, params string[] arguments)
-        {
-            if (arguments.Any(string.IsNullOrEmpty))
-            {
-                if (throwExceptonIfFalse)
-                {
-                    throw new ArgumentException("can not be bull or empty", arguments.First(string.IsNullOrEmpty));
-                }
-                return;
-            }
-            _argumentsList.AddRange(arguments);
-        }
-
-        public void Add(params string[] argumets)
-        {
-            _argumentsList.AddRange(argumets);
-        }
-
-		public void AddFormattedDateArgument(string datePrefix, DateTime date)
+		public ArgumentHelper()
 		{
-			if (default(DateTime) != date) 
+			_argumentsList = new List<string>();
+		}
+
+		public void AddIf(bool condition, params string[] arguments)
+		{
+			if (condition)
 			{
-				_argumentsList.Add(datePrefix);
-				_argumentsList.Add(date.ToString ("yyyy-MM-dd HH:mm:ss"));
+				_argumentsList.AddRange(arguments);
 			}
 		}
 
-        public List<string> GetList()
-        {
-            return _argumentsList;
-        }
-
-        public override string ToString()
-        {
-            return string.Join(" ", _argumentsList);
+		public void AddIfNotNullOrEmpty(bool throwExceptonIfFalse, params string[] arguments)
+		{
+			if (arguments.Any(string.IsNullOrEmpty))
+			{
+				if (throwExceptonIfFalse)
+				{
+					throw new ArgumentException("can not be bull or empty", arguments.First(string.IsNullOrEmpty));
+				}
+				return;
+			}
+			_argumentsList.AddRange(arguments);
 		}
 
-		public static string ArgumentForStatus (Status status)
+		public void Add(params string[] argumets)
 		{
-			switch (status) {
+			_argumentsList.AddRange(argumets);
+		}
+
+		public void AddFormattedDateArgument(string datePrefix, DateTime date)
+		{
+			if (default(DateTime) == date) return;
+
+			_argumentsList.Add(datePrefix);
+			_argumentsList.Add(date.ToString("yyyy-MM-dd HH:mm:ss"));
+		}
+
+		public List<string> GetList()
+		{
+			return _argumentsList;
+		}
+
+		public override string ToString()
+		{
+			return string.Join(" ", _argumentsList);
+		}
+
+		public static string ArgumentForStatus(Status status)
+		{
+			switch (status)
+			{
 				case Status.Added:
 					return "--added";
 				case Status.Clean:
@@ -81,7 +81,7 @@ namespace Hg.Net
 				default:
 					return string.Empty;
 			}
-        }
-    }
+		}
+	}
 }
 
