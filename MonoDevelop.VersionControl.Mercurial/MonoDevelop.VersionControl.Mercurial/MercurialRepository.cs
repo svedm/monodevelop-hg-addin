@@ -191,7 +191,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		protected override RevisionPath[] OnGetRevisionChanges(Revision revision)
 		{
 			List<RevisionPath> paths = new List<RevisionPath>();
-			foreach (var status in GetStatus(this.RootPath, revision)
+			foreach (var status in GetStatus(this.RootPath, (MercurialRevision)revision)
 				.Where (s => s.Status != Status.Clean && s.Status != Status.Ignored))
 			{
 				paths.Add(new RevisionPath(Path.Combine(RootPath, status.Filename), ConvertAction(status.Status), status.Status.ToString()));
@@ -307,8 +307,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 				
 			return statuses.Select(pair => new FileStatus(MercurialRevision.None,
-					Path.IsPathRooted(pair.Key) ? pair.Key : (string)((FilePath)Path.Combine(this.RootPath, pair.Key)),
-					ConvertStatus(pair.Value)));
+					Path.IsPathRooted(pair.Key) ? pair.Key : (string)((FilePath)Path.Combine(this.RootPath, pair.Key)),	pair.Value));
 		}
 
 		private static RevisionAction ConvertAction(Status status)
