@@ -190,7 +190,14 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override RevisionPath[] OnGetRevisionChanges(Revision revision)
 		{
-			throw new NotImplementedException();
+			List<RevisionPath> paths = new List<RevisionPath>();
+			foreach (var status in GetStatus(this.RootPath, revision)
+				.Where (s => s.Status != Status.Clean && s.Status != Status.Ignored))
+			{
+				paths.Add(new RevisionPath(Path.Combine(RootPath, status.Filename), ConvertAction(status.Status), status.Status.ToString()));
+			}
+
+			return paths.ToArray();
 		}
 
 		protected override void OnIgnore(MonoDevelop.Core.FilePath[] localPath)
@@ -269,6 +276,54 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 
 			return VersionStatus.Unversioned;
+		}
+
+		private IEnumerable<FileStatus> GetStatus(string path, MercurialRevision revision)
+		{
+			string rootRelativePath = ((FilePath)path).ToRelative(RootPath);
+			string revString = null;
+			if (null != revision && MercurialRevision.Head != revision.RevisionNumber && MercurialRevision.None != revision.RevisionNumber)
+			{
+				revString = revision.RevisionNumber;
+			}
+						
+			IDictionary<string, Status> statuses = _mercurialClient.Status(new[]{ path }, onlyRevision: revString);
+			if (!statuses.ContainsKey(path))
+			{
+				if (statuses.ContainsKey(rootRelativePath))
+				{
+					statuses[path] = statuses[rootRelativePath];
+					statuses.Remove(rootRelativePath);
+				}
+				else if (statuses.ContainsKey(path))
+				{
+					statuses[path] = statuses[path];
+					statuses.Remove(path);
+				}
+				else
+				{
+					statuses[path] = Status.Clean;
+				}
+			}
+				
+			return statuses.Select(pair => new FileStatus(MercurialRevision.None,
+					Path.IsPathRooted(pair.Key) ? pair.Key : (string)((FilePath)Path.Combine(this.RootPath, pair.Key)),
+					ConvertStatus(pair.Value)));
+		}
+
+		private static RevisionAction ConvertAction(Status status)
+		{
+			switch (status)
+			{
+				case Status.Added:
+					return RevisionAction.Add;
+				case Status.Modified:
+					return RevisionAction.Modify;
+				case Status.Removed:
+					return RevisionAction.Delete;
+			}
+
+			return RevisionAction.Other;
 		}
 
 		#endregion

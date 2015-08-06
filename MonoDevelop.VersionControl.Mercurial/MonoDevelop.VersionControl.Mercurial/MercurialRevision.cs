@@ -7,6 +7,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public readonly string RevisionNumber;
 
 		public const string Head = "tip";
+		public const string None = "NONE";
 
 		public MercurialRevision(Repository repository, string revisionNumber)
 			: base(repository)
