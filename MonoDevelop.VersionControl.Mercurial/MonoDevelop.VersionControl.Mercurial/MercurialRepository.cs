@@ -202,12 +202,18 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnIgnore(MonoDevelop.Core.FilePath[] localPath)
 		{
-			throw new NotImplementedException();
+			foreach (var filePath in localPath)
+			{
+				_mercurialClient.Ignore(filePath);
+			}
 		}
 
 		protected override void OnUnignore(MonoDevelop.Core.FilePath[] localPath)
 		{
-			throw new NotImplementedException();
+			foreach (var filePath in localPath)
+			{
+				_mercurialClient.Ignore(filePath);
+			}
 		}
 
 		#endregion

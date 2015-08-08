@@ -17,6 +17,7 @@ namespace Hg.Net
 		private readonly string _hgPath = "hg";
 		private const byte HeaderLength = 5;
 		private Process _cmdServer;
+		public string RepoPath { get; private set;}
 
 		public HgCommandServerClient()
 		{
@@ -31,6 +32,7 @@ namespace Hg.Net
 
 		public bool Connect(string pathToRepo)
 		{
+			RepoPath = pathToRepo;
 			var args = string.Format(@"serve --cmdserver pipe --cwd ""{0}"" --repository ""{0}""", pathToRepo);
 			var serverInfo = new ProcessStartInfo(_hgPath, args)
 			{

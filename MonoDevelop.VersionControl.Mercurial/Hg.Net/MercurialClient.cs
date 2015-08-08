@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Hg.Net.Models;
 using System.Linq;
+using System.IO;
 
 namespace Hg.Net
 {
@@ -277,6 +278,34 @@ namespace Hg.Net
 			{
 				throw new Exception(string.Format("Error removing {0}", string.Join(" , ", files.ToArray())));
 			}
+		}
+
+		public void Ignore(string path)
+		{
+			if (string.IsNullOrEmpty(path))
+			{
+				throw new ArgumentException("Path cannot be empty");
+			}
+
+			File.AppendAllLines(Path.Combine(_hgClient.RepoPath, ".hgignore"), new []{ path });
+		}
+
+		public void Unignore (string path)
+		{
+			if (string.IsNullOrEmpty(path))
+			{
+				throw new ArgumentException("Path cannot be empty");
+			}
+
+			var hgignorePath = Path.Combine(_hgClient.RepoPath, ".hgignore");
+			var lines = File.ReadAllLines(path).ToList();
+			var element = lines.FirstOrDefault(x => x == path);
+			if (element != null)
+			{
+				lines.Remove(element);
+			}
+
+			File.WriteAllLines(hgignorePath, lines);
 		}
 	}
 }
