@@ -12,12 +12,16 @@ namespace MonoDevelop.VersionControl.Mercurial
 	{
 		private readonly MercurialClient _mercurialClient;
 
-		public MercurialRepository(string rootPath)
+		public MercurialRepository()
 		{
-			this.RootPath = rootPath;
-			_mercurialClient = new MercurialClient(rootPath, "/usr/local/bin/hg");
 		}
 
+		public MercurialRepository (MercurialVersionControl vcs, string url) : base (vcs)
+		{
+			Url = url;
+			RootPath = new Uri(url).AbsolutePath;
+			_mercurialClient = new MercurialClient(new Uri(url).AbsolutePath, "/usr/local/bin/hg");
+		}
 
 		#region implemented abstract members of Repository
 
@@ -68,7 +72,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 				monitor.ReportError(ex.Message, ex);
 			}
 
-			return new MercurialRepository(serverPath);
+			return new MercurialRepository((MercurialVersionControl)this.VersionControlSystem, serverPath);
 		}
 
 		protected override void OnUpdate(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
@@ -222,10 +226,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public override string[] SupportedProtocols
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return MercurialVersionControl.protocols; }
 		}
 
 		#endregion
