@@ -363,6 +363,25 @@ namespace Hg.Net
 				throw new Exception("Error parsing heads: " + ex.Message);
 			}
 		}
+
+		public bool Merge(string revision, bool force=false, string mergeTool=null, bool dryRun=false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("merge");
+
+			argumentHelper.AddIf(force, "--force");
+			argumentHelper.AddIfNotNullOrEmpty(false, mergeTool, "--tool");
+			argumentHelper.AddIf(dryRun, "--preview");
+			argumentHelper.AddIf(!string.IsNullOrEmpty(revision), revision);
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
+			{
+				throw new Exception(result, 0, "Error merging");
+			}
+
+			return result.ResultCode == 0;
+		}
 	}
 }
 
