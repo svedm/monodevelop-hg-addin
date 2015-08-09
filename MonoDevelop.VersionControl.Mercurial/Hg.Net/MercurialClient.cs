@@ -334,6 +334,35 @@ namespace Hg.Net
 				});
 			return statuses;
 		}
+
+		public IEnumerable<CommandServerRevision> Heads(IEnumerable<string> revisions, string startRevision=null, bool onlyTopologicalHeads=false, bool showClosed=false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("heads", "--style", "xml");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", startRevision);
+			argumentHelper.AddIf(onlyTopologicalHeads, "--topo");
+			argumentHelper.AddIf(showClosed, "--closed");
+			if (revisions != null)
+			{
+				argumentHelper.Add(revisions.ToArray());
+			}
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
+			{
+				throw new Exception("Error getting heads");
+			}
+
+			try 
+			{
+				return XmlHelper.GetRevisions(result.Response);
+			}
+			catch (XmlException ex) 
+			{
+				throw new Exception("Error parsing heads: " + ex.Message);
+			}
+		}
 	}
 }
 
