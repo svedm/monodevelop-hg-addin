@@ -290,7 +290,7 @@ namespace Hg.Net
 			File.AppendAllLines(Path.Combine(_hgClient.RepoPath, ".hgignore"), new []{ path });
 		}
 
-		public void Unignore (string path)
+		public void Unignore(string path)
 		{
 			if (string.IsNullOrEmpty(path))
 			{
@@ -306,6 +306,33 @@ namespace Hg.Net
 			}
 
 			File.WriteAllLines(hgignorePath, lines);
+		}
+
+		public IDictionary<string,bool> Resolve(IEnumerable<string> files, bool all = false, bool list = false, bool mark = false,
+			bool unmark = false, string mergeTool = null, string includePattern = null, string excludePattern = null)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("resolve");
+
+			argumentHelper.AddIf(all, "--all");
+			argumentHelper.AddIf(list, "--list");
+			argumentHelper.AddIf(mark, "--mark");
+			argumentHelper.AddIf(unmark, "--unmark");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--tool", mergeTool);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--include", includePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
+			if (files != null)
+				argumentHelper.Add(files.ToArray());
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			var statuses = result.Response.Split(new[]{ '\n' }, StringSplitOptions.RemoveEmptyEntries)
+				.Aggregate(new Dictionary<string,bool>(),
+                (dict, line) =>
+				{
+					dict[line.Substring(2).Trim()] = (line[0] == 'R');
+					return dict;
+				});
+			return statuses;
 		}
 	}
 }
