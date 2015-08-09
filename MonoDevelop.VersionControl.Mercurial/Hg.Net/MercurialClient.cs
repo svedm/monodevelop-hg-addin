@@ -377,7 +377,7 @@ namespace Hg.Net
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (result.ResultCode != 1 && result.ResultCode != 0)
 			{
-				throw new Exception(result, 0, "Error merging");
+				throw new Exception("Error merging");
 			}
 
 			return result.ResultCode == 0;

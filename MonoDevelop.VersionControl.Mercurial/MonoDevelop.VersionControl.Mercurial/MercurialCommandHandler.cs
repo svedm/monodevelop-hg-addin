@@ -52,6 +52,24 @@ namespace MonoDevelop.VersionControl.Mercurial
 				worker.Start();
 			}
 		}
+
+		[CommandUpdateHandler (MercurialCommands.Merge)]
+		protected void CanMerge (CommandInfo item)
+		{
+			if (1 == GetItems ().Count) {
+				VersionControlItem vcitem = GetItems ()[0];
+				item.Visible = (vcitem.Repository is MercurialRepository &&
+					((MercurialRepository)vcitem.Repository).CanMerge(vcitem.Path));
+			} else { item.Visible = false; }
+		}
+
+		[CommandHandler (MercurialCommands.Merge)]
+		protected void OnMerge()
+		{
+			VersionControlItem vcitem = GetItems ()[0];
+			MercurialRepository repo = ((MercurialRepository)vcitem.Repository);
+			repo.Merge ();
+		}
 	}
 }
 

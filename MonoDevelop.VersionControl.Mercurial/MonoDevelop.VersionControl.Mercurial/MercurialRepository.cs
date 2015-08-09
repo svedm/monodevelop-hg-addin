@@ -382,6 +382,17 @@ namespace MonoDevelop.VersionControl.Mercurial
 				monitor.ReportSuccess(string.Empty);
 			}
 		}
+
+		public virtual bool CanMerge (FilePath localPath)
+		{
+			return _mercurialClient.Heads(null)
+				.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Message, null)).Count() > 1;
+		}
+
+		public virtual void Merge ()
+		{
+			_mercurialClient.Merge(null);
+		}
 	}
 }
 
