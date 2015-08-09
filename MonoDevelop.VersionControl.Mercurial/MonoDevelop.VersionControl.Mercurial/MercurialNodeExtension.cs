@@ -22,6 +22,11 @@ namespace MonoDevelop.VersionControl.Mercurial
 		}
 
 		#endregion
+
+		public override Type CommandHandlerType
+		{
+			get	{ return typeof(MercurialCommandHandler); }
+		}
 	}
 }
 

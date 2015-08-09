@@ -16,7 +16,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 		}
 
-		public MercurialRepository (MercurialVersionControl vcs, string url) : base (vcs)
+		public MercurialRepository(MercurialVersionControl vcs, string url)
+			: base(vcs)
 		{
 			Url = url;
 			RootPath = new Uri(url).AbsolutePath;
@@ -333,6 +334,54 @@ namespace MonoDevelop.VersionControl.Mercurial
 		}
 
 		#endregion
+
+		public bool CanResolve(FilePath path)
+		{
+			return IsConflicted(path);
+		}
+
+		public virtual bool IsConflicted(FilePath localFile)
+		{
+			if (string.IsNullOrEmpty(GetLocalBasePath(localFile.FullPath)))
+			{
+				return false;
+			}
+
+			var info = GetVersionInfo(localFile, VersionInfoQueryFlags.None);
+			return (null != info && info.IsVersioned && (0 != (info.Status & VersionStatus.Conflicted)));
+		}
+
+
+		public static string GetLocalBasePath(string localPath)
+		{
+			if (null == localPath)
+			{
+				return string.Empty;
+			}
+			if (Directory.Exists(Path.Combine(localPath, ".hg")))
+			{
+				return localPath;
+			}
+
+			return GetLocalBasePath(Path.GetDirectoryName(localPath));
+		}
+
+		public virtual void Resolve(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
+		{
+			foreach (var localPath in localPaths)
+			{
+				try
+				{
+					_mercurialClient.Resolve(new[]{ localPath.FullPath.ToString() }, mark: true);
+				}
+				catch (Exception ce)
+				{
+					monitor.ReportError(ce.Message, ce);
+				}
+
+				monitor.ReportSuccess(string.Empty);
+			}
+		}
 	}
 }
 

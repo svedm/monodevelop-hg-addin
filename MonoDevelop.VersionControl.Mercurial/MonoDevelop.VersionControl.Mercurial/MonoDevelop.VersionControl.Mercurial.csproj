@@ -36,6 +36,8 @@
     <Compile Include="MercurialVersionControl.cs" />
     <Compile Include="MercurialCommandHandler.cs" />
     <Compile Include="MercurialNodeExtension.cs" />
+    <Compile Include="MercurialCommands.cs" />
+    <Compile Include="VersionControlTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
