@@ -32,12 +32,12 @@
     <Compile Include="Properties\AddinInfo.cs" />
     <Compile Include="MercurialRepository.cs" />
     <Compile Include="MercurialRevision.cs" />
-    <Compile Include="FileStatus.cs" />
     <Compile Include="MercurialVersionControl.cs" />
     <Compile Include="MercurialCommandHandler.cs" />
     <Compile Include="MercurialNodeExtension.cs" />
-    <Compile Include="MercurialCommands.cs" />
     <Compile Include="VersionControlTask.cs" />
+    <Compile Include="Models\FileStatus.cs" />
+    <Compile Include="Models\MercurialCommands.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
@@ -57,5 +57,8 @@
       <Project>{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}</Project>
       <Name>Hg.Net</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>
