@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MonoDevelop.Core;
 using System.IO;
 using MonoDevelop.VersionControl.Mercurial.GUI;
+using MonoDevelop.Projects;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -130,6 +131,69 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				dialog.Destroy();
 			}
+		}
+
+		[CommandUpdateHandler(MercurialCommands.Init)]
+		protected void CanInit(CommandInfo item)
+		{
+			if (1 == GetItems().Count)
+			{
+				var vcitem = GetItems()[0];
+				if (vcitem.WorkspaceObject is Solution && null == vcitem.Repository)
+				{
+					item.Visible = true;
+					return;
+				}
+			} 
+			item.Visible = false;
+		}
+
+		[CommandHandler(MercurialCommands.Init)]
+		protected void OnInit()
+		{
+			MercurialVersionControl bvc = null;
+			MercurialRepository repo = null;
+			var vcitem = GetItems()[0];
+			var path = vcitem.Path;
+			List<FilePath> addFiles = null;
+			var solution = (Solution)vcitem.WorkspaceObject;
+
+			foreach (var vcs in VersionControlService.GetVersionControlSystems ())
+				if (vcs is MercurialVersionControl)
+					bvc = (MercurialVersionControl)vcs;
+
+			if (null == bvc || !bvc.IsInstalled)
+				throw new Exception("Can't use mercurial");
+
+			bvc.Init(path);
+
+			repo = new MercurialRepository(bvc, string.Format("file://{0}", path));
+			addFiles = GetAllFiles(solution);
+
+			repo.Add(addFiles.ToArray(), false, null);
+			solution.NeedsReload = true;
+		}
+
+		private static List<FilePath> GetAllFiles(Solution s)
+		{
+			var files = new List<FilePath> { s.FileName };
+
+			foreach (var child in s.GetAllSolutions())
+			{
+				if (s != child)
+					files.AddRange(GetAllFiles(child));
+			}
+
+			foreach (var project in s.GetAllProjects ())
+			{
+				files.Add(project.FileName);
+				foreach (var pfile in project.Files)
+				{
+					files.Add(pfile.FilePath);
+				}
+			}
+
+			return files;
 		}
 	}
 }

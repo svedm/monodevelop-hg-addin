@@ -1,4 +1,5 @@
 ﻿using System;
+using Hg.Net;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -37,6 +38,11 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public static readonly string[] protocols = { "http", "https", "ssh", "file" };
 
 		#endregion
+
+		public void Init (string newRepoPath)
+		{
+			MercurialClient.Init(newRepoPath, string.Empty);
+		}
 	}
 }
 
