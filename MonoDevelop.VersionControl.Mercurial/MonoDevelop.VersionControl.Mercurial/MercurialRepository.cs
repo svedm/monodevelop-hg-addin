@@ -333,6 +333,24 @@ namespace MonoDevelop.VersionControl.Mercurial
 			return RevisionAction.Other;
 		}
 
+		private static bool IsProjectOrDirectory (FilePath localPath)
+		{
+			return Directory.Exists (localPath) ||
+				MonoDevelop.Projects.Services.ProjectService.IsSolutionItemFile (localPath) ||
+				MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (localPath);
+		}
+
+		private bool IsVersioned (FilePath localPath) 
+		{
+			if (string.IsNullOrEmpty (GetLocalBasePath (localPath.FullPath)))
+			{
+				return false;
+			}
+
+			var info = GetVersionInfo (localPath, VersionInfoQueryFlags.None);
+			return (null != info && info.IsVersioned);
+		}
+
 		#endregion
 
 		public bool CanResolve(FilePath path)
@@ -392,6 +410,40 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public virtual void Merge ()
 		{
 			_mercurialClient.Merge(null);
+		}
+
+		public virtual bool CanPull (FilePath localPath)
+		{
+			return IsProjectOrDirectory (localPath.FullPath) && IsVersioned (localPath);
+		}
+
+		public virtual bool CanRebase ()
+		{
+			//TODO Implement hg rebase
+			return false;
+		}
+
+		public virtual Dictionary<string, BranchType> GetKnownBranches(FilePath path)
+		{
+			try 
+			{
+				return _mercurialClient.Paths().Aggregate (new Dictionary<string, BranchType> (), (dict, pair) => 
+				{
+					dict[pair.Value] = BranchType.Parent;
+					return dict;
+				});
+			} catch (Exception ex) 
+			{
+				LoggingService.LogWarning ("Error getting known branches", ex);
+			}
+
+			return new Dictionary<string, BranchType>();
+		}
+
+		public virtual void Rebase (string pullLocation, FilePath localPath, bool remember, bool overwrite, IProgressMonitor monitor) 
+		{
+			//TODO Implement hg rebase
+			throw new NotImplementedException ();
 		}
 	}
 }

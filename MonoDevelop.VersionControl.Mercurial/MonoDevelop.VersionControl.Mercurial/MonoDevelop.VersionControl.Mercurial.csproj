@@ -44,6 +44,7 @@
     <Compile Include="gtk-gui\MonoDevelop.VersionControl.Mercurial.GUI.MainDialog.cs" />
     <Compile Include="GUI\PasswordDialog.cs" />
     <Compile Include="gtk-gui\MonoDevelop.VersionControl.Mercurial.GUI.PasswordDialog.cs" />
+    <Compile Include="Models\BranchType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />

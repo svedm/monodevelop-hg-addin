@@ -382,6 +382,29 @@ namespace Hg.Net
 
 			return result.ResultCode == 0;
 		}
+
+		public IDictionary<string,string> Paths(string name=null)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("paths");
+
+			argumentHelper.AddIf(!string.IsNullOrEmpty (name), name);
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 0)
+			{
+				throw new Exception("Error getting paths");
+			}
+				
+			return result.Response
+				.Split (new[]{"\n"}, StringSplitOptions.RemoveEmptyEntries)
+				.Aggregate (new Dictionary<string,string>(), (dict,line) =>
+				{
+					var tokens = line.Split (new[]{'='}, 2);
+					dict[tokens[0].Trim ()] = tokens[1].Trim ();
+					return dict;
+				});
+		}
 	}
 }
 
