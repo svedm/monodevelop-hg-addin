@@ -174,6 +174,28 @@ namespace MonoDevelop.VersionControl.Mercurial
 			solution.NeedsReload = true;
 		}
 
+		[CommandUpdateHandler(MercurialCommands.Ignore)]
+		protected void CanIgnore(CommandInfo item)
+		{
+			if (GetItems().Count == 1)
+			{
+				var vcitem = GetItems()[0];
+				if (vcitem.Repository is MercurialRepository)
+				{
+					item.Visible = !((MercurialRepository)vcitem.Repository).IsVersioned(vcitem.Path);
+					return;
+				}
+			} 
+			item.Visible = false;
+		}
+
+		[CommandHandler(MercurialCommands.Ignore)]
+		protected void OnIgnore()
+		{
+			VersionControlItem vcitem = GetItems()[0];
+			((MercurialRepository)vcitem.Repository).Ignore(new [] { vcitem.Path });
+		}
+
 		private static List<FilePath> GetAllFiles(Solution s)
 		{
 			var files = new List<FilePath> { s.FileName };

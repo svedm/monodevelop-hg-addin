@@ -340,7 +340,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 				MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (localPath);
 		}
 
-		private bool IsVersioned (FilePath localPath) 
+		internal bool IsVersioned (FilePath localPath) 
 		{
 			if (string.IsNullOrEmpty (GetLocalBasePath (localPath.FullPath)))
 			{
