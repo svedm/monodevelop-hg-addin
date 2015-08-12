@@ -17,13 +17,31 @@ namespace Hg.Net
 			{
 				throw new ArgumentException("repoPath cannot be empty");
 			}
+			if (string.IsNullOrEmpty(mercurialPath))
+			{
+				mercurialPath = DefaultHgPath;
+			}
 
 			_hgClient = new HgCommandServerClient(mercurialPath);
 			_hgClient.Connect(repoPath);
 		}
 
+		public static string DefaultHgPath 
+		{
+			get
+			{
+				var os = Environment.OSVersion.VersionString.ToLower();
+				return (os.Contains("win")) ? "hg" : (MacDetector.IsRunningOnMac()) ? "/usr/local/bin/hg" : "/usr/bin/hg";
+			}
+		}
+
 		public static void Init(string path, string hgPath)
 		{
+			if (string.IsNullOrEmpty(hgPath))
+			{
+				hgPath = DefaultHgPath;
+			}
+
 			HgCommandServerClient.Init(path, hgPath);
 		}
 
