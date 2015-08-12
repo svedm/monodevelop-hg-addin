@@ -36,13 +36,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\MonoDevelop.VersionControl.Mercurial\MonoDevelop.VersionControl.Mercurial.csproj">
-      <Project>{F720C7FC-9C5F-4B49-9F24-F538A774CECA}</Project>
-      <Name>MonoDevelop.VersionControl.Mercurial</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Hg.Net\Hg.Net.csproj">
       <Project>{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}</Project>
       <Name>Hg.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoDevelop.VersionControl.Mercurial\MonoDevelop.VersionControl.Mercurial.csproj">
+      <Project>{F720C7FC-9C5F-4B49-9F24-F538A774CECA}</Project>
+      <Name>MonoDevelop.VersionControl.Mercurial</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
