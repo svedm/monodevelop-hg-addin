@@ -445,6 +445,45 @@ namespace MonoDevelop.VersionControl.Mercurial
 			//TODO Implement hg rebase
 			throw new NotImplementedException ();
 		}
+
+		internal bool IsModified (FilePath localFile)
+		{
+			if (string.IsNullOrEmpty(GetLocalBasePath (localFile.FullPath)))
+			{
+				return false;
+			}
+
+			var info = GetVersionInfo(localFile, VersionInfoQueryFlags.None);
+
+			return (info != null && info.IsVersioned && info.HasLocalChanges);
+		}
+
+		public virtual void Push (string pushLocation, FilePath localPath, bool remember, bool overwrite, bool omitHistory, IProgressMonitor monitor) 
+		{
+			try 
+			{
+				_mercurialClient.Push (pushLocation, force: overwrite, allowNewBranch: overwrite);
+			} 
+			catch (Exception ex) 
+			{
+				monitor.ReportError (ex.Message, ex);
+			}
+
+			monitor.ReportSuccess (string.Empty);
+		}
+
+		public virtual void Pull(string selectedLocation, FilePath path, bool saveDefault, bool overwrite, IProgressMonitor progressMonitor)
+		{
+			try 
+			{
+				_mercurialClient.Pull (selectedLocation, update: true, force: overwrite);
+			} 
+			catch (Exception ce)
+			{
+				progressMonitor.ReportError (ce.Message, ce);
+			}
+			progressMonitor.ReportSuccess (string.Empty);
+		}
 	}
 }
 

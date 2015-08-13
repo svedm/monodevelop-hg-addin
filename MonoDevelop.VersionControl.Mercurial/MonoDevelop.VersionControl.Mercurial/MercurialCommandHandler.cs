@@ -5,6 +5,7 @@ using MonoDevelop.Core;
 using System.IO;
 using MonoDevelop.VersionControl.Mercurial.GUI;
 using MonoDevelop.Projects;
+using Gtk;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -55,6 +56,60 @@ namespace MonoDevelop.VersionControl.Mercurial
 				worker.Start();
 			}
 		}
+
+		[CommandUpdateHandler(MercurialCommands.Pull)]
+		protected void CanPull(CommandInfo item)
+		{
+			if (GetItems().Count == 1)
+			{
+				var vcitem = GetItems()[0];
+				item.Visible = (vcitem.Repository is MercurialRepository &&
+				((MercurialRepository)vcitem.Repository).CanPull(vcitem.Path));
+			}
+			else
+			{
+				item.Visible = false;
+			}
+		}
+
+		[CommandHandler(MercurialCommands.Pull)]
+		protected void OnPull()
+		{
+			var vcitem = GetItems()[0];
+			var repo = ((MercurialRepository)vcitem.Repository);
+			var branches = repo.GetKnownBranches(vcitem.Path);
+			string defaultBranch = string.Empty,
+			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
+
+			foreach (var branch in branches)
+			{
+				if (BranchType.Parent == branch.Value)
+				{
+					defaultBranch = branch.Key;
+					break;
+				}
+			}
+
+			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, true, true, false);
+			try
+			{
+				if ((int)Gtk.ResponseType.Ok == bsd.Run() && !string.IsNullOrEmpty(bsd.SelectedLocation))
+				{
+					var worker = new VersionControlTask();
+					worker.Description = string.Format("Pulling from {0}", bsd.SelectedLocation);
+					worker.Operation = delegate
+					{
+						repo.Pull(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, worker.ProgressMonitor);
+					};
+					worker.Start();
+				}
+			}
+			finally
+			{
+				bsd.Destroy();
+			}
+		}
+
 
 		[CommandUpdateHandler(MercurialCommands.Merge)]
 		protected void CanMerge(CommandInfo item)
