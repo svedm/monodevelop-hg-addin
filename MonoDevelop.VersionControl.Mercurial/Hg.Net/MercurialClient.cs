@@ -507,6 +507,43 @@ namespace Hg.Net
 				throw new Exception("Error parsing incoming " + ex.Message);
 			}
 		}
+
+		public IList<CommandServerRevision> Outgoing(string source, string toRevision, bool force = false, bool showNewestFirst = false, string branch = null, int limit = 0, bool showMerges = true, bool recurseSubRepos = false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("outgoing", "--style", "xml");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", toRevision);
+			argumentHelper.AddIf(force, "--force");
+			argumentHelper.AddIf(showNewestFirst, "--newest-first");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
+			argumentHelper.AddIf(!showMerges, "--no-merges");
+			argumentHelper.AddIf(recurseSubRepos, "--subrepos");
+			if (limit > 0)
+			{
+				argumentHelper.Add("--limit");
+				argumentHelper.Add(limit.ToString());
+			}
+			argumentHelper.AddIf(!string.IsNullOrEmpty(source), source);
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
+			{
+				throw new Exception("Error getting outgoing");
+			}
+
+			try
+			{
+				int index = result.Response.IndexOf("<?xml");
+				if (0 > index)
+					return new List<CommandServerRevision>();
+				return XmlHelper.GetRevisions(result.Response.Substring(index));
+			}
+			catch (XmlException ex)
+			{
+				throw new Exception("Error parsing outgoing" + ex.Message);
+			}
+		}
 	}
 }
 
