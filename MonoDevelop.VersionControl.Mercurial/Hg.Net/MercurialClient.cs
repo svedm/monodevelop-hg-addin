@@ -423,6 +423,27 @@ namespace Hg.Net
 					return dict;
 				});
 		}
+
+		public bool Pull(string source, string toRevision=null, bool update=false, bool force=false, string branch=null)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("pull");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", toRevision);
+			argumentHelper.AddIf(update, "--update");
+			argumentHelper.AddIf(force, "--force");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
+			argumentHelper.AddIf(!string.IsNullOrEmpty (source), source);
+
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 1 && result.ResultCode != 0)
+			{
+				throw new Exception("Error pulling");
+			}
+
+			return result.ResultCode == 0;
+		}
 	}
 }
 
