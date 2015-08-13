@@ -247,9 +247,74 @@ namespace MonoDevelop.VersionControl.Mercurial
 		[CommandHandler(MercurialCommands.Ignore)]
 		protected void OnIgnore()
 		{
-			VersionControlItem vcitem = GetItems()[0];
+			var vcitem = GetItems()[0];
 			((MercurialRepository)vcitem.Repository).Ignore(new [] { vcitem.Path });
 		}
+
+		[CommandHandler(Commands.Publish)]
+		[CommandHandler(MercurialCommands.Push)]
+		protected void OnMercurialPublish()
+		{
+			var vcitem = GetItems()[0];
+			var repo = ((MercurialRepository)vcitem.Repository);
+			var branches = repo.GetKnownBranches(vcitem.Path);
+			string defaultBranch = string.Empty,
+			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
+
+			if (repo.IsModified(MercurialRepository.GetLocalBasePath(vcitem.Path.FullPath)))
+			{
+				MessageDialog md = new MessageDialog(MonoDevelop.Ide.IdeApp.Workbench.RootWindow, DialogFlags.Modal, 
+					                   MessageType.Question, ButtonsType.YesNo, 
+					                   GettextCatalog.GetString("You have uncommitted local changes. Push anyway?"));
+				try
+				{
+					if ((int)ResponseType.Yes != md.Run())
+					{
+						return;
+					}
+				}
+				finally
+				{
+					md.Destroy();
+				}
+			}
+
+			foreach (var branch in branches)
+			{
+				if (BranchType.Parent == branch.Value)
+				{
+					defaultBranch = branch.Key;
+					break;
+				}
+			}
+
+			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, true, true, true);
+			try
+			{
+				if ((int)Gtk.ResponseType.Ok == bsd.Run() && !string.IsNullOrEmpty(bsd.SelectedLocation))
+				{
+					var worker = new VersionControlTask();
+					worker.Description = string.Format("Pushing to {0}", bsd.SelectedLocation);
+					worker.Operation = delegate
+					{
+						repo.Push(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, bsd.OmitHistory, worker.ProgressMonitor);
+					};
+					worker.Start();
+				}
+			}
+			finally
+			{
+				bsd.Destroy();
+			}
+		}
+
+		[CommandUpdateHandler(Commands.Publish)]
+		[CommandUpdateHandler(MercurialCommands.Push)]
+		protected void UpdateMercurialPublish(CommandInfo item)
+		{
+			CanPull(item);
+		}
+
 
 		private static List<FilePath> GetAllFiles(Solution s)
 		{
