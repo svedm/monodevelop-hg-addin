@@ -81,7 +81,4 @@
     <Folder Include="Models\" />
     <Folder Include="GUI\" />
   </ItemGroup>
-  <ItemGroup>
-    <AddinReference Include="MonoDevelop.VersionControl" />
-  </ItemGroup>
 </Project>
