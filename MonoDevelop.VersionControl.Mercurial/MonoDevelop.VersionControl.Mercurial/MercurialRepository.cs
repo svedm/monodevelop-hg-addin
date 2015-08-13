@@ -11,6 +11,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 	public class MercurialRepository : UrlBasedRepository
 	{
 		private readonly MercurialClient _mercurialClient;
+		public string LocalBasePath { get; set; }
 
 		public MercurialRepository()
 		{
@@ -496,6 +497,12 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				monitor.ReportError(ex.Message, ex);
 			}
+		}
+
+		public Revision[] GetIncoming(string remote)
+		{
+			return _mercurialClient.Incoming(remote, null)
+				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray ();
 		}
 	}
 }
