@@ -15,6 +15,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public MercurialRepository()
 		{
+			Url = "";		
 		}
 
 		public MercurialRepository(MercurialVersionControl vcs, string url)
@@ -34,7 +35,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override Revision[] OnGetHistory(FilePath localFile, Revision since)
 		{
-			return _mercurialClient.Log(((MercurialRevision)since).RevisionNumber,
+			var revision = (MercurialRevision)since ?? new MercurialRevision(this, MercurialRevision.Head);
+
+			return _mercurialClient.Log(revision.RevisionNumber,
 				new List<string> { localFile.FullPath })
 					.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
 		}
@@ -118,8 +121,15 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override void OnCheckout(MonoDevelop.Core.FilePath targetLocalPath, Revision rev, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
 		{
-			// Hm... Checkout in mercurial 
-			throw new NotImplementedException();
+			try
+			{
+				MercurialClient.Clone(this.Url, targetLocalPath.FullPath.ToString());
+				monitor.ReportSuccess("");
+			}
+			catch(Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
 		}
 
 		protected override void OnRevert(MonoDevelop.Core.FilePath[] localPaths, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
@@ -373,7 +383,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public static string GetLocalBasePath(string localPath)
 		{
-			if (null == localPath)
+			if (localPath == null)
 			{
 				return string.Empty;
 			}

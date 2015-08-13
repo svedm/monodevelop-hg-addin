@@ -1,6 +1,7 @@
 ﻿using System;
 using Hg.Net;
 using MonoDevelop.Core;
+using MonoDevelop.VersionControl;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -25,7 +26,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override MonoDevelop.Core.FilePath OnGetRepositoryPath(MonoDevelop.Core.FilePath path, string id)
 		{
-			throw new NotImplementedException();
+			
+			return path;
 		}
 
 		public override string Name
@@ -57,6 +59,33 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 
 			monitor.ReportSuccess(string.Empty);
+		}
+
+		public override bool IsInstalled
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		public override Repository GetRepositoryReference(FilePath path, string id)
+		{
+			try
+			{
+				string url = MercurialRepository.GetLocalBasePath(path.FullPath);
+				if (string.IsNullOrEmpty(url))
+				{
+					return null;
+				}
+				return new MercurialRepository(this, string.Format("file://{0}", url));
+			}
+			catch (Exception ex)
+			{
+				// No bzr
+				LoggingService.LogError(ex.ToString());
+				return null;
+			}
 		}
 	}
 }

@@ -1,6 +1,90 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ExtensionModel>
+	<Runtime>
+    </Runtime>
 	<Extension path="/MonoDevelop/VersionControl/VersionControlSystems">
 		<Class class="MonoDevelop.VersionControl.Mercurial.MercurialVersionControl"/>
+	</Extension>
+
+	<Extension path="/MonoDevelop/Ide/MainMenu/File">
+		<CommandItem id="MonoDevelop.VersionControl.Mercurial.MercurialCommands.Branch" insertafter="MonoDevelop.VersionControl.Commands.Checkout" />
+	</Extension>	
+
+	<Extension path = "/MonoDevelop/Ide/Pads/ProjectPad">
+		<NodeBuilder class = "MonoDevelop.VersionControl.Mercurial.MercurialNodeExtension" insertbefore="VersionControlNodeExtension" />
+	</Extension>
+	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/VersionControl">
+		<Condition id="ItemType" value="Project|WorkspaceItem">
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Resolve" insertafter="MonoDevelop.VersionControl.Commands.Revert" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Incoming" insertafter="MonoDevelop.VersionControl.Commands.Update" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Pull" insertafter="MonoDevelop.VersionControl.Mercurial.MercurialCommands.Incoming" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Rebase" insertafter="MonoDevelop.VersionControl.Mercurial.MercurialCommands.Pull" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Outgoing" insertafter="MonoDevelop.VersionControl.Mercurial.MercurialCommands.Rebase" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Push" insertafter="MonoDevelop.VersionControl.Mercurial.MercurialCommands.Outgoing" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Uncommit" insertafter="MonoDevelop.VersionControl.Commands.Commit" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Export" insertafter="MonoDevelop.VersionControl.Commands.Log" />
+		</Condition>
+		<Condition id="ItemType" value="IFileItem">
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Resolve" insertafter="MonoDevelop.VersionControl.Commands.Revert" />
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Ignore" insertafter="MonoDevelop.VersionControl.Commands.Revert" />
+		</Condition>
+		<Condition id="ItemType" value="Solution">
+			<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Init" />
+		</Condition>
+	</Extension>
+
+	<Extension path = "/MonoDevelop/VersionControl/StatusViewCommands">
+		<CommandItem id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Resolve" 
+		             insertafter= "MonoDevelop.VersionControl.Commands.Revert"
+		             type= "MonoDevelop.VersionControl.Mercurial.MercurialCommandHandler" />
+	</Extension>
+	
+	<Extension path = "/MonoDevelop/Ide/Commands/VersionControl">
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Resolve" 
+			_label = "Resolve"
+			icon = "vc-resolve-command"
+			description = "Resolve conflicts on working copy files or directories." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Pull" 
+			_label = "Pull"
+			icon = "vc-update" 
+			description = "Turn this branch into a mirror of another branch." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Rebase" 
+			_label = "Rebase"
+			icon = "vc-update" 
+			description = "Rebase the working directory to the branch head." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Push" 
+			_label = "Push"
+			icon = "vc-commit" 
+			description = "Push changesets from the local repository to the specified destination." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Merge" 
+			_label = "Merge"
+			description = "Perform a three-way merge." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Branch"
+			defaultHandler = "MonoDevelop.VersionControl.Mercurial.BranchCommand" 
+			_label = "_Clone"
+			icon = "vc-update" 
+			description = "Create a new copy of a branch." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Init"
+			_label = "_New Mercurial Repository"
+			icon = "vc-add" 
+			description = "Create a new Mercurial repository for the solution." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Ignore"
+			_label = "_Ignore"
+			description = "Instruct Mercurial to ignore this file." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Uncommit"
+			_label = "Rollback"
+			icon = "vc-revert-command" 
+			description = "Remove the last committed revision." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Export"
+			_label = "E_xport"
+			description = "Export to a directory or archive." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Incoming" 
+			_label = "I_ncoming"
+			icon = "vc-update" 
+			description = "Check for incoming changesets." />
+		<Command id = "MonoDevelop.VersionControl.Mercurial.MercurialCommands.Outgoing" 
+			_label = "_Outgoing"
+			icon = "vc-commit" 
+			description = "Check for outgoing changesets." />
 	</Extension>
 </ExtensionModel>

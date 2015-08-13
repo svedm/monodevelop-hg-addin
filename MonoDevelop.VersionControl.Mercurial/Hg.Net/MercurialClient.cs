@@ -221,7 +221,7 @@ namespace Hg.Net
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (result.ResultCode != 1 && result.ResultCode != 0)
 			{
-				throw new Exception("Error pushing");
+				throw new Exception("Error pushing: " + result.Error);
 			}
 
 			return result.ResultCode == 0;

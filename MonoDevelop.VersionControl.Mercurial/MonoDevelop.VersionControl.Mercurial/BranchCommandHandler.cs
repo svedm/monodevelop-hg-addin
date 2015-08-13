@@ -68,17 +68,17 @@ namespace MonoDevelop.VersionControl.Mercurial
 			string[] list = System.IO.Directory.GetFiles(localPath);
 
 			ProjectCheck[] checks =
-			{
-				delegate (string path)
 				{
-					return path.EndsWith(".mds");
-				},
-				delegate (string path)
-				{
-					return path.EndsWith(".mdp");
-				},
-				MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile
-			};
+					delegate (string path)
+					{
+						return path.EndsWith(".mds");
+					},
+					delegate (string path)
+					{
+						return path.EndsWith(".mdp");
+					},
+					MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile
+				};
 
 			foreach (ProjectCheck check in checks)
 			{
