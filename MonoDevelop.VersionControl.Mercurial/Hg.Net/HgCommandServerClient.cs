@@ -71,6 +71,11 @@ namespace Hg.Net
 
 			var args = string.Format("init {0}", path);
 
+			Execute(hgPath, args);
+		}
+
+		public static void Execute(string hgPath, string args)
+		{
 			var processInfo = new ProcessStartInfo(hgPath, args)
 			{
 				RedirectStandardInput = true,
@@ -89,7 +94,7 @@ namespace Hg.Net
 
 			if (process.ExitCode != 0 || !string.IsNullOrEmpty(process.StandardError.ReadToEnd()))
 			{
-				throw new Exception("Init reposiory failed on path " + path);
+				throw new Exception("Failed on run " + args);
 			}
 		}
 

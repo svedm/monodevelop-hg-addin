@@ -544,6 +544,32 @@ namespace Hg.Net
 				throw new Exception("Error parsing outgoing" + ex.Message);
 			}
 		}
+
+		public static void Clone(string source, string destination, bool updateWorkingCopy=true, string updateToRevision=null, string cloneToRevision=null, string onlyCloneBranch=null, bool forcePullProtocol=false, bool compressData=true, string mercurialPath=null)
+		{
+			if (string.IsNullOrEmpty(source))
+			{
+				throw new ArgumentException("Source must not be empty.", "source");
+			}
+			if (string.IsNullOrEmpty(mercurialPath))
+			{
+				mercurialPath = DefaultHgPath;
+			}
+
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("clone");
+
+			argumentHelper.AddIf(!updateWorkingCopy, "--noupdate");
+			argumentHelper.AddIf(forcePullProtocol, "--pull");
+			argumentHelper.AddIf(!compressData, "--uncompressed");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--updaterev", updateToRevision);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", cloneToRevision);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", onlyCloneBranch);
+			argumentHelper.Add (source);
+			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
+
+			HgCommandServerClient.Execute(mercurialPath, argumentHelper.ToString());
+		}
 	}
 }
 
