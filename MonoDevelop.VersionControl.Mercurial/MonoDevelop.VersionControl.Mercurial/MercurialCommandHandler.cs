@@ -396,10 +396,10 @@ namespace MonoDevelop.VersionControl.Mercurial
 						repo.LocalBasePath = MercurialRepository.GetLocalBasePath(localPath);
 						Revision[] history = repo.GetIncoming(bsd.SelectedLocation);
 						DispatchService.GuiDispatch(() =>
-						{
-							var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
-							//IdeApp.Workbench.OpenDocument (view, true);
-						});
+							{
+								var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
+								//IdeApp.Workbench.OpenDocument (view, true);
+							});
 					};
 					worker.Start();
 				}
@@ -409,6 +409,64 @@ namespace MonoDevelop.VersionControl.Mercurial
 				bsd.Destroy();
 			}
 
+		}
+
+		[CommandUpdateHandler(MercurialCommands.Outgoing)]
+		protected void CanGetOutgoing(CommandInfo item)
+		{
+			if (GetItems().Count == 1)
+			{
+				var vcitem = GetItems()[0];
+				item.Visible = (vcitem.Repository is MercurialRepository);
+			}
+			else
+			{
+				item.Visible = false;
+			}
+		}
+
+		[CommandHandler(MercurialCommands.Outgoing)]
+		protected void OnGetOutgoing()
+		{
+			var vcitem = GetItems()[0];
+			var repo = ((MercurialRepository)vcitem.Repository);
+			var branches = repo.GetKnownBranches(vcitem.Path);
+			string defaultBranch = string.Empty,
+			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
+
+			foreach (var branch in branches)
+			{
+				if (BranchType.Parent == branch.Value)
+				{
+					defaultBranch = branch.Key;
+					break;
+				}
+			}// check for parent branch
+
+			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, false, false, false);
+			try
+			{
+				if ((int)Gtk.ResponseType.Ok == bsd.Run())
+				{
+					var worker = new VersionControlTask();
+					worker.Description = string.Format("Outgoing to {0}", bsd.SelectedLocation);
+					worker.Operation = delegate
+					{
+						repo.LocalBasePath = MercurialRepository.GetLocalBasePath(localPath);
+						Revision[] history = repo.GetOutgoing(bsd.SelectedLocation);
+						DispatchService.GuiDispatch(() =>
+							{
+								var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
+								//IdeApp.Workbench.OpenDocument (view, true);
+							});
+					};
+					worker.Start();
+				}
+			}
+			finally
+			{
+				bsd.Destroy();
+			}
 		}
 
 		private static List<FilePath> GetAllFiles(Solution s)

@@ -502,7 +502,13 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public Revision[] GetIncoming(string remote)
 		{
 			return _mercurialClient.Incoming(remote, null)
-				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray ();
+				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
+		}
+
+		public Revision[] GetOutgoing(string remote)
+		{
+			return _mercurialClient.Outgoing(remote, null)
+				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
 		}
 	}
 }
