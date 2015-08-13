@@ -484,6 +484,19 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 			progressMonitor.ReportSuccess (string.Empty);
 		}
+
+		public virtual void Export(FilePath localPath, FilePath exportLocation, IProgressMonitor monitor)
+		{
+			try 
+			{
+				_mercurialClient.Archive(exportLocation);
+				monitor.ReportSuccess(string.Empty);
+			} 
+			catch(Exception ex) 
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
+		}
 	}
 }
 
