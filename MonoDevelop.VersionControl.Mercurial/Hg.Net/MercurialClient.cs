@@ -444,6 +444,31 @@ namespace Hg.Net
 
 			return result.ResultCode == 0;
 		}
+
+		public void Archive(string destination, string revision=null, string prefix=null, bool decode=true, bool recurseSubRepositories=false, string includePattern=null, string excludePattern=null)
+		{
+			if (string.IsNullOrEmpty (destination)) 
+			{
+				throw new ArgumentException ("Destination cannot be empty", "destination");
+			}
+
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("archive");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", revision);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--prefix", prefix);
+			argumentHelper.AddIf(!decode, "--no-decode");
+			argumentHelper.AddIf(recurseSubRepositories, "--subrepos");
+			argumentHelper.AddIfNotNullOrEmpty(false, "--include", includePattern);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--exclude", excludePattern);
+			argumentHelper.Add (destination);
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 0)
+			{
+				throw new Exception(string.Format("Error archiving to {0}", destination));
+			}
+		}
 	}
 }
 
