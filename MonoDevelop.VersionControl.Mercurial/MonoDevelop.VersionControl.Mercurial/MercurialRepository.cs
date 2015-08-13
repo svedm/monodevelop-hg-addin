@@ -512,4 +512,3 @@ namespace MonoDevelop.VersionControl.Mercurial
 		}
 	}
 }
-

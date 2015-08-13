@@ -1,5 +1,6 @@
 ﻿using System;
 using Hg.Net;
+using MonoDevelop.Core;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -39,9 +40,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		#endregion
 
-		public void Init (string newRepoPath)
+		public void Init(string newRepoPath)
 		{
 			MercurialClient.Init(newRepoPath, string.Empty);
+		}
+
+		public void Branch(string location, string localPath, IProgressMonitor monitor)
+		{
+			try
+			{
+				MercurialClient.Clone(source: location, destination: localPath);
+			}
+			catch (Exception ex)
+			{
+				monitor.ReportError(ex.Message, ex);
+			}
+
+			monitor.ReportSuccess(string.Empty);
 		}
 	}
 }
