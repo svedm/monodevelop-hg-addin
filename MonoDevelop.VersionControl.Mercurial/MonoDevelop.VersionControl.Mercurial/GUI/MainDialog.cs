@@ -11,8 +11,8 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 		public string SelectedLocation
 		{
 			get
-			{ 
-				string loc = string.Empty;
+			{
+				var loc = string.Empty;
 
 				try
 				{
@@ -22,6 +22,7 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 				}
 				catch
 				{
+					// ignored
 				}
 
 				return loc;
@@ -30,22 +31,22 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 
 		public bool SaveDefault
 		{
-			get{ return defaultCB.Active; }
+			get { return defaultCB.Active; }
 		}
 
 		public string LocalPath
 		{
-			get{ return localPathButton.Filename; }
+			get { return localPathButton.Filename; }
 		}
 
 		public bool Overwrite
 		{
-			get{ return overwriteCB.Active; }
+			get { return overwriteCB.Active; }
 		}
 
 		public bool OmitHistory
 		{
-			get{ return omitCB.Active; }
+			get { return omitCB.Active; }
 		}
 
 		protected virtual void OnOmitCBToggled(object sender, System.EventArgs e)
@@ -62,7 +63,7 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 			this.Build();
 
 			Parent = MonoDevelop.Ide.IdeApp.Workbench.RootWindow;
-			Gtk.CellRendererText textRenderer = new Gtk.CellRendererText();
+			var textRenderer = new Gtk.CellRendererText();
 			textRenderer.Editable = true;
 			textRenderer.Edited += delegate(object o, EditedArgs args)
 			{
@@ -74,6 +75,7 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 				}
 				catch
 				{
+					// ignored
 				}
 			};
 
@@ -83,9 +85,9 @@ namespace MonoDevelop.VersionControl.Mercurial.GUI
 
 			Gtk.TreeIter iter,
 			defaultIter = default(Gtk.TreeIter);
-			bool found = false;
+			var found = false;
 
-			foreach (string location in branchLocations)
+			foreach (var location in branchLocations)
 			{
 				iter = branchStore.AppendValues(location);
 				if (location == defaultLocation)

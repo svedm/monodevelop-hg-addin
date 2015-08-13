@@ -20,7 +20,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		}
 
 		public MercurialRevision(Repository repository, string revision, DateTime time, string author, string email, string message)
-			:base(repository, time, author, message)
+			: base(repository, time, author, message)
 		{
 			RevisionNumber = revision;
 			Email = email;
@@ -31,14 +31,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public override Revision GetPrevious()
 		{
 			int revisionNumber;
-			if (int.TryParse(RevisionNumber, out revisionNumber))
-			{
-				return new MercurialRevision(this.Repository, (revisionNumber - 1).ToString());
-			}
-			else
-			{
-				return new MercurialRevision(Repository, string.Format("p1({0})", RevisionNumber));
-			}
+			return int.TryParse(RevisionNumber, out revisionNumber) 
+				? new MercurialRevision(this.Repository, (revisionNumber - 1).ToString()) 
+				: new MercurialRevision(Repository, string.Format("p1({0})", RevisionNumber));
 		}
 
 		#endregion

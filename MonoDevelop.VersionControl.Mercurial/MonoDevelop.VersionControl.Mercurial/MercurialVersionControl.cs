@@ -26,7 +26,6 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override MonoDevelop.Core.FilePath OnGetRepositoryPath(MonoDevelop.Core.FilePath path, string id)
 		{
-			
 			return path;
 		}
 
@@ -38,7 +37,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 		}
 
-		public static readonly string[] protocols = { "http", "https", "ssh", "file" };
+		public static readonly string[] Protocols = { "http", "https", "ssh", "file" };
 
 		#endregion
 
@@ -73,12 +72,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			try
 			{
-				string url = MercurialRepository.GetLocalBasePath(path.FullPath);
-				if (string.IsNullOrEmpty(url))
-				{
-					return null;
-				}
-				return new MercurialRepository(this, string.Format("file://{0}", url));
+				var url = MercurialRepository.GetLocalBasePath(path.FullPath);
+				return string.IsNullOrEmpty(url) ? null : new MercurialRepository(this, string.Format("file://{0}", url));
 			}
 			catch (Exception ex)
 			{

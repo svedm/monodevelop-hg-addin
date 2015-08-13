@@ -3,6 +3,7 @@ using MonoDevelop.Components.Commands;
 using System.Collections.Generic;
 using MonoDevelop.Core;
 using System.IO;
+using System.Linq;
 using MonoDevelop.VersionControl.Mercurial.GUI;
 using MonoDevelop.Projects;
 using Gtk;
@@ -19,12 +20,12 @@ namespace MonoDevelop.VersionControl.Mercurial
 		[CommandUpdateHandler(MercurialCommands.Resolve)]
 		protected void CanResolve(CommandInfo item)
 		{
-			bool visible = true;
+			var visible = true;
 
-			foreach (var vcitem in GetItems ())
+			foreach (var vcitem in GetItems())
 			{
 				if (!(visible = (vcitem.Repository is MercurialRepository &&
-				    ((MercurialRepository)vcitem.Repository).CanResolve(vcitem.Path))))
+					((MercurialRepository)vcitem.Repository).CanResolve(vcitem.Path))))
 				{
 					break;
 				}
@@ -35,18 +36,15 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		[CommandHandler(MercurialCommands.Resolve)]
 		protected void OnResolve()
-		{ 
+		{
 			List<FilePath> files = null;
 			MercurialRepository repo = null;
 
-			foreach (VersionControlItemList repolist in GetItems().SplitByRepository())
+			foreach (var repolist in GetItems().SplitByRepository())
 			{
 				repo = (MercurialRepository)repolist[0].Repository;
 				files = new List<FilePath>(repolist.Count);
-				foreach (var item in repolist)
-				{
-					files.Add(new FilePath(item.Path));
-				}
+				files.AddRange(repolist.Select(item => new FilePath(item.Path)));
 
 				var worker = new VersionControlTask();
 				worker.Description = string.Format("Resolving {0}", files[0]);
@@ -82,28 +80,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 			string defaultBranch = string.Empty,
 			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
 
-			foreach (var branch in branches)
+			foreach (var branch in branches.Where(branch => BranchType.Parent == branch.Value))
 			{
-				if (BranchType.Parent == branch.Value)
-				{
-					defaultBranch = branch.Key;
-					break;
-				}
+				defaultBranch = branch.Key;
+				break;
 			}
 
 			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, true, true, false);
 			try
 			{
-				if ((int)Gtk.ResponseType.Ok == bsd.Run() && !string.IsNullOrEmpty(bsd.SelectedLocation))
+				if ((int)Gtk.ResponseType.Ok != bsd.Run() || string.IsNullOrEmpty(bsd.SelectedLocation)) return;
+
+				var worker = new VersionControlTask { Description = string.Format("Pulling from {0}", bsd.SelectedLocation) };
+				worker.Operation = delegate
 				{
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Pulling from {0}", bsd.SelectedLocation);
-					worker.Operation = delegate
-					{
-						repo.Pull(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, worker.ProgressMonitor);
-					};
-					worker.Start();
-				}
+					repo.Pull(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, worker.ProgressMonitor);
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -117,7 +110,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			if (1 == GetItems().Count)
 			{
-				VersionControlItem vcitem = GetItems()[0];
+				var vcitem = GetItems()[0];
 				item.Visible = (vcitem.Repository is MercurialRepository &&
 				((MercurialRepository)vcitem.Repository).CanMerge(vcitem.Path));
 			}
@@ -130,8 +123,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 		[CommandHandler(MercurialCommands.Merge)]
 		protected void OnMerge()
 		{
-			VersionControlItem vcitem = GetItems()[0];
-			MercurialRepository repo = ((MercurialRepository)vcitem.Repository);
+			var vcitem = GetItems()[0];
+			var repo = ((MercurialRepository)vcitem.Repository);
 			repo.Merge();
 		}
 
@@ -147,7 +140,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					item.Visible = (repo.CanPull(vcitem.Path) &&
 					repo.CanRebase());
 				}
-			} 
+			}
 			item.Visible = false;
 		}
 
@@ -160,28 +153,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 			string defaultBranch = string.Empty,
 			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
 
-			foreach (KeyValuePair<string, BranchType> branch in branches)
+			foreach (var branch in branches.Where(branch => BranchType.Parent == branch.Value))
 			{
-				if (BranchType.Parent == branch.Value)
-				{
-					defaultBranch = branch.Key;
-					break;
-				}
+				defaultBranch = branch.Key;
+				break;
 			}
 
 			var dialog = new MainDialog(branches.Keys, defaultBranch, localPath, false, true, true, false);
 			try
 			{
-				if ((int)Gtk.ResponseType.Ok == dialog.Run() && !string.IsNullOrEmpty(dialog.SelectedLocation))
+				if ((int)Gtk.ResponseType.Ok != dialog.Run() || string.IsNullOrEmpty(dialog.SelectedLocation)) return;
+
+				var worker = new VersionControlTask { Description = string.Format("Rebasing on {0}", dialog.SelectedLocation) };
+				worker.Operation = delegate
 				{
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Rebasing on {0}", dialog.SelectedLocation);
-					worker.Operation = delegate
-					{
-						repo.Rebase(dialog.SelectedLocation, vcitem.Path, dialog.SaveDefault, dialog.Overwrite, worker.ProgressMonitor);
-					};
-					worker.Start();
-				}
+					repo.Rebase(dialog.SelectedLocation, vcitem.Path, dialog.SaveDefault, dialog.Overwrite, worker.ProgressMonitor);
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -200,7 +188,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					item.Visible = true;
 					return;
 				}
-			} 
+			}
 			item.Visible = false;
 		}
 
@@ -214,9 +202,10 @@ namespace MonoDevelop.VersionControl.Mercurial
 			List<FilePath> addFiles = null;
 			var solution = (Solution)vcitem.WorkspaceObject;
 
-			foreach (var vcs in VersionControlService.GetVersionControlSystems ())
-				if (vcs is MercurialVersionControl)
-					bvc = (MercurialVersionControl)vcs;
+			foreach (var vcs in VersionControlService.GetVersionControlSystems().OfType<MercurialVersionControl>())
+			{
+				bvc = vcs;
+			}
 
 			if (null == bvc || !bvc.IsInstalled)
 				throw new Exception("Can't use mercurial");
@@ -241,7 +230,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					item.Visible = !((MercurialRepository)vcitem.Repository).IsVersioned(vcitem.Path);
 					return;
 				}
-			} 
+			}
 			item.Visible = false;
 		}
 
@@ -249,7 +238,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		protected void OnIgnore()
 		{
 			var vcitem = GetItems()[0];
-			((MercurialRepository)vcitem.Repository).Ignore(new [] { vcitem.Path });
+			((MercurialRepository)vcitem.Repository).Ignore(new[] { vcitem.Path });
 		}
 
 		[CommandHandler(Commands.Publish)]
@@ -264,9 +253,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 			if (repo.IsModified(MercurialRepository.GetLocalBasePath(vcitem.Path.FullPath)))
 			{
-				MessageDialog md = new MessageDialog(MonoDevelop.Ide.IdeApp.Workbench.RootWindow, DialogFlags.Modal, 
-					                   MessageType.Question, ButtonsType.YesNo, 
-					                   GettextCatalog.GetString("You have uncommitted local changes. Push anyway?"));
+				var md = new MessageDialog(MonoDevelop.Ide.IdeApp.Workbench.RootWindow, DialogFlags.Modal,
+									   MessageType.Question, ButtonsType.YesNo,
+									   GettextCatalog.GetString("You have uncommitted local changes. Push anyway?"));
 				try
 				{
 					if ((int)ResponseType.Yes != md.Run())
@@ -280,28 +269,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 				}
 			}
 
-			foreach (var branch in branches)
+			foreach (var branch in branches.Where(branch => BranchType.Parent == branch.Value))
 			{
-				if (BranchType.Parent == branch.Value)
-				{
-					defaultBranch = branch.Key;
-					break;
-				}
+				defaultBranch = branch.Key;
+				break;
 			}
 
 			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, true, true, true);
 			try
 			{
-				if ((int)Gtk.ResponseType.Ok == bsd.Run() && !string.IsNullOrEmpty(bsd.SelectedLocation))
+				if ((int) Gtk.ResponseType.Ok != bsd.Run() || string.IsNullOrEmpty(bsd.SelectedLocation)) return;
+
+				var worker = new VersionControlTask {Description = string.Format("Pushing to {0}", bsd.SelectedLocation)};
+				worker.Operation = delegate
 				{
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Pushing to {0}", bsd.SelectedLocation);
-					worker.Operation = delegate
-					{
-						repo.Push(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, bsd.OmitHistory, worker.ProgressMonitor);
-					};
-					worker.Start();
-				}
+					repo.Push(bsd.SelectedLocation, vcitem.Path, bsd.SaveDefault, bsd.Overwrite, bsd.OmitHistory, worker.ProgressMonitor);
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -322,23 +306,21 @@ namespace MonoDevelop.VersionControl.Mercurial
 			var vcitem = GetItems()[0];
 			var repo = ((MercurialRepository)vcitem.Repository);
 
-			var fsd = new FileChooserDialog(GettextCatalog.GetString("Choose export location"), 
-				          null, FileChooserAction.Save, "Cancel", ResponseType.Cancel, 
-				          "Save", ResponseType.Accept);
+			var fsd = new FileChooserDialog(GettextCatalog.GetString("Choose export location"),
+						  null, FileChooserAction.Save, "Cancel", ResponseType.Cancel,
+						  "Save", ResponseType.Accept);
 			fsd.SetCurrentFolder(vcitem.Path.FullPath.ParentDirectory);
 
 			try
 			{
-				if ((int)Gtk.ResponseType.Accept == fsd.Run() && !string.IsNullOrEmpty(fsd.Filename))
+				if ((int) Gtk.ResponseType.Accept != fsd.Run() || string.IsNullOrEmpty(fsd.Filename)) return;
+
+				var worker = new VersionControlTask {Description = string.Format("Exporting to {0}", fsd.Filename)};
+				worker.Operation = delegate
 				{
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Exporting to {0}", fsd.Filename);
-					worker.Operation = delegate
-					{
-						repo.Export(vcitem.Path, fsd.Filename, worker.ProgressMonitor);
-					};
-					worker.Start();
-				}
+					repo.Export(vcitem.Path, fsd.Filename, worker.ProgressMonitor);
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -375,14 +357,11 @@ namespace MonoDevelop.VersionControl.Mercurial
 			string defaultBranch = string.Empty,
 			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
 
-			foreach (var branch in branches)
+			foreach (var branch in branches.Where(branch => BranchType.Parent == branch.Value))
 			{
-				if (BranchType.Parent == branch.Value)
-				{
-					defaultBranch = branch.Key;
-					break;
-				}
-			}// check for parent branch
+				defaultBranch = branch.Key;
+				break;
+			}
 
 			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, false, false, false);
 			try
@@ -394,7 +373,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					worker.Operation = delegate
 					{
 						repo.LocalBasePath = MercurialRepository.GetLocalBasePath(localPath);
-						Revision[] history = repo.GetIncoming(bsd.SelectedLocation);
+						var history = repo.GetIncoming(bsd.SelectedLocation);
 						DispatchService.GuiDispatch(() =>
 							{
 								var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
@@ -434,34 +413,31 @@ namespace MonoDevelop.VersionControl.Mercurial
 			string defaultBranch = string.Empty,
 			localPath = vcitem.IsDirectory ? (string)vcitem.Path.FullPath : Path.GetDirectoryName(vcitem.Path.FullPath);
 
-			foreach (var branch in branches)
+			foreach (var branch in branches.Where(branch => BranchType.Parent == branch.Value))
 			{
-				if (BranchType.Parent == branch.Value)
-				{
-					defaultBranch = branch.Key;
-					break;
-				}
-			}// check for parent branch
+				defaultBranch = branch.Key;
+				break;
+			}
 
 			var bsd = new MainDialog(branches.Keys, defaultBranch, localPath, false, false, false, false);
 			try
 			{
-				if ((int)Gtk.ResponseType.Ok == bsd.Run())
+				if ((int) Gtk.ResponseType.Ok != bsd.Run()) return;
+				var worker = new VersionControlTask
 				{
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Outgoing to {0}", bsd.SelectedLocation);
-					worker.Operation = delegate
+					Description = string.Format("Outgoing to {0}", bsd.SelectedLocation),
+					Operation = delegate
 					{
 						repo.LocalBasePath = MercurialRepository.GetLocalBasePath(localPath);
-						Revision[] history = repo.GetOutgoing(bsd.SelectedLocation);
+						var history = repo.GetOutgoing(bsd.SelectedLocation);
 						DispatchService.GuiDispatch(() =>
-							{
-								var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
-								//IdeApp.Workbench.OpenDocument (view, true);
-							});
-					};
-					worker.Start();
-				}
+						{
+							var view = new MonoDevelop.VersionControl.Views.LogView(localPath, true, history, repo);
+							//IdeApp.Workbench.OpenDocument (view, true);
+						});
+					}
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -479,7 +455,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 					files.AddRange(GetAllFiles(child));
 			}
 
-			foreach (var project in s.GetAllProjects ())
+			foreach (var project in s.GetAllProjects())
 			{
 				files.Add(project.FileName);
 				foreach (var pfile in project.Files)

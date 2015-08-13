@@ -26,7 +26,7 @@ namespace Hg.Net
 			_hgClient.Connect(repoPath);
 		}
 
-		public static string DefaultHgPath 
+		public static string DefaultHgPath
 		{
 			get
 			{
@@ -305,7 +305,7 @@ namespace Hg.Net
 				throw new ArgumentException("Path cannot be empty");
 			}
 
-			File.AppendAllLines(Path.Combine(_hgClient.RepoPath, ".hgignore"), new []{ path });
+			File.AppendAllLines(Path.Combine(_hgClient.RepoPath, ".hgignore"), new[] { path });
 		}
 
 		public void Unignore(string path)
@@ -326,7 +326,7 @@ namespace Hg.Net
 			File.WriteAllLines(hgignorePath, lines);
 		}
 
-		public IDictionary<string,bool> Resolve(IEnumerable<string> files, bool all = false, bool list = false, bool mark = false,
+		public IDictionary<string, bool> Resolve(IEnumerable<string> files, bool all = false, bool list = false, bool mark = false,
 			bool unmark = false, string mergeTool = null, string includePattern = null, string excludePattern = null)
 		{
 			var argumentHelper = new ArgumentHelper();
@@ -343,9 +343,9 @@ namespace Hg.Net
 				argumentHelper.Add(files.ToArray());
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
-			var statuses = result.Response.Split(new[]{ '\n' }, StringSplitOptions.RemoveEmptyEntries)
-				.Aggregate(new Dictionary<string,bool>(),
-                (dict, line) =>
+			var statuses = result.Response.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+				.Aggregate(new Dictionary<string, bool>(),
+				(dict, line) =>
 				{
 					dict[line.Substring(2).Trim()] = (line[0] == 'R');
 					return dict;
@@ -353,7 +353,7 @@ namespace Hg.Net
 			return statuses;
 		}
 
-		public IEnumerable<CommandServerRevision> Heads(IEnumerable<string> revisions, string startRevision=null, bool onlyTopologicalHeads=false, bool showClosed=false)
+		public IEnumerable<CommandServerRevision> Heads(IEnumerable<string> revisions, string startRevision = null, bool onlyTopologicalHeads = false, bool showClosed = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("heads", "--style", "xml");
@@ -372,17 +372,17 @@ namespace Hg.Net
 				throw new Exception("Error getting heads");
 			}
 
-			try 
+			try
 			{
 				return XmlHelper.GetRevisions(result.Response);
 			}
-			catch (XmlException ex) 
+			catch (XmlException ex)
 			{
 				throw new Exception("Error parsing heads: " + ex.Message);
 			}
 		}
 
-		public bool Merge(string revision, bool force=false, string mergeTool=null, bool dryRun=false)
+		public bool Merge(string revision, bool force = false, string mergeTool = null, bool dryRun = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("merge");
@@ -401,30 +401,30 @@ namespace Hg.Net
 			return result.ResultCode == 0;
 		}
 
-		public IDictionary<string,string> Paths(string name=null)
+		public IDictionary<string, string> Paths(string name = null)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("paths");
 
-			argumentHelper.AddIf(!string.IsNullOrEmpty (name), name);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(name), name);
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (result.ResultCode != 0)
 			{
 				throw new Exception("Error getting paths");
 			}
-				
+
 			return result.Response
-				.Split (new[]{"\n"}, StringSplitOptions.RemoveEmptyEntries)
-				.Aggregate (new Dictionary<string,string>(), (dict,line) =>
+				.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+				.Aggregate(new Dictionary<string, string>(), (dict, line) =>
 				{
-					var tokens = line.Split (new[]{'='}, 2);
-					dict[tokens[0].Trim ()] = tokens[1].Trim ();
+					var tokens = line.Split(new[] { '=' }, 2);
+					dict[tokens[0].Trim()] = tokens[1].Trim();
 					return dict;
 				});
 		}
 
-		public bool Pull(string source, string toRevision=null, bool update=false, bool force=false, string branch=null)
+		public bool Pull(string source, string toRevision = null, bool update = false, bool force = false, string branch = null)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("pull");
@@ -433,7 +433,7 @@ namespace Hg.Net
 			argumentHelper.AddIf(update, "--update");
 			argumentHelper.AddIf(force, "--force");
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
-			argumentHelper.AddIf(!string.IsNullOrEmpty (source), source);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(source), source);
 
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
@@ -494,10 +494,10 @@ namespace Hg.Net
 			{
 				throw new Exception("Error getting incoming");
 			}
-				
+
 			try
 			{
-				var index = result.Response.IndexOf("<?xml");
+				var index = result.Response.IndexOf("<?xml", StringComparison.Ordinal);
 				if (index < 0)
 					return new List<CommandServerRevision>();
 				return XmlHelper.GetRevisions(result.Response.Substring(index));
@@ -534,7 +534,7 @@ namespace Hg.Net
 
 			try
 			{
-				int index = result.Response.IndexOf("<?xml");
+				var index = result.Response.IndexOf("<?xml", StringComparison.Ordinal);
 				if (0 > index)
 					return new List<CommandServerRevision>();
 				return XmlHelper.GetRevisions(result.Response.Substring(index));
@@ -545,7 +545,7 @@ namespace Hg.Net
 			}
 		}
 
-		public static void Clone(string source, string destination, bool updateWorkingCopy=true, string updateToRevision=null, string cloneToRevision=null, string onlyCloneBranch=null, bool forcePullProtocol=false, bool compressData=true, string mercurialPath=null)
+		public static void Clone(string source, string destination, bool updateWorkingCopy = true, string updateToRevision = null, string cloneToRevision = null, string onlyCloneBranch = null, bool forcePullProtocol = false, bool compressData = true, string mercurialPath = null)
 		{
 			if (string.IsNullOrEmpty(source))
 			{
@@ -565,8 +565,8 @@ namespace Hg.Net
 			argumentHelper.AddIfNotNullOrEmpty(false, "--updaterev", updateToRevision);
 			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", cloneToRevision);
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", onlyCloneBranch);
-			argumentHelper.Add (source);
-			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
+			argumentHelper.Add(source);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(destination), destination);
 
 			HgCommandServerClient.Execute(mercurialPath, argumentHelper.ToString());
 		}

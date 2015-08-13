@@ -15,7 +15,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public MercurialRepository()
 		{
-			Url = "";		
+			Url = "";
 		}
 
 		public MercurialRepository(MercurialVersionControl vcs, string url)
@@ -44,12 +44,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override System.Collections.Generic.IEnumerable<VersionInfo> OnGetVersionInfo(System.Collections.Generic.IEnumerable<MonoDevelop.Core.FilePath> paths, bool getRemoteStatus)
 		{
-			if (paths != null)
-			{
-				return paths.Select(p => CheckStatus(this, p));
-			}
-
-			return new List<VersionInfo>();
+			return paths != null ? paths.Select(p => CheckStatus(this, p)) : new List<VersionInfo>();
 		}
 
 		protected override VersionInfo[] OnGetDirectoryVersionInfo(MonoDevelop.Core.FilePath localDirectory, bool getRemoteStatus, bool recursive)
@@ -126,7 +121,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 				MercurialClient.Clone(this.Url, targetLocalPath.FullPath.ToString());
 				monitor.ReportSuccess("");
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				monitor.ReportError(ex.Message, ex);
 			}
@@ -206,14 +201,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override RevisionPath[] OnGetRevisionChanges(Revision revision)
 		{
-			List<RevisionPath> paths = new List<RevisionPath>();
-			foreach (var status in GetStatus(this.RootPath, (MercurialRevision)revision)
-				.Where (s => s.Status != Status.Clean && s.Status != Status.Ignored))
-			{
-				paths.Add(new RevisionPath(Path.Combine(RootPath, status.Filename), ConvertAction(status.Status), status.Status.ToString()));
-			}
-
-			return paths.ToArray();
+			return GetStatus(this.RootPath, (MercurialRevision)revision)
+				.Where(s => s.Status != Status.Clean && s.Status != Status.Ignored)
+				.Select(status => new RevisionPath(Path.Combine(RootPath, status.Filename), ConvertAction(status.Status), status.Status.ToString())).ToArray();
 		}
 
 		protected override void OnIgnore(MonoDevelop.Core.FilePath[] localPath)
@@ -238,7 +228,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public override string[] SupportedProtocols
 		{
-			get { return MercurialVersionControl.protocols; }
+			get { return MercurialVersionControl.Protocols; }
 		}
 
 		#endregion
@@ -247,7 +237,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		private VersionInfo[] CheckStatuses(Repository repo, string path)
 		{
-			var statuses = _mercurialClient.Status(new[]{ path });
+			var statuses = _mercurialClient.Status(new[] { path });
 			var result = new List<VersionInfo>();
 
 			foreach (var status in statuses)
@@ -261,7 +251,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		private VersionInfo CheckStatus(Repository repo, string path)
 		{
 			var shortPath = path.Split(Path.DirectorySeparatorChar).Last();
-			var statuses = _mercurialClient.Status(new[]{ path });
+			var statuses = _mercurialClient.Status(new[] { path });
 
 			if (!statuses.ContainsKey(shortPath))
 			{
@@ -305,8 +295,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				revString = revision.RevisionNumber;
 			}
-						
-			IDictionary<string, Status> statuses = _mercurialClient.Status(new[]{ path }, onlyRevision: revString);
+
+			IDictionary<string, Status> statuses = _mercurialClient.Status(new[] { path }, onlyRevision: revString);
 			if (!statuses.ContainsKey(path))
 			{
 				if (statuses.ContainsKey(rootRelativePath))
@@ -324,9 +314,9 @@ namespace MonoDevelop.VersionControl.Mercurial
 					statuses[path] = Status.Clean;
 				}
 			}
-				
+
 			return statuses.Select(pair => new FileStatus(MercurialRevision.None,
-					Path.IsPathRooted(pair.Key) ? pair.Key : (string)((FilePath)Path.Combine(this.RootPath, pair.Key)),	pair.Value));
+					Path.IsPathRooted(pair.Key) ? pair.Key : (string)((FilePath)Path.Combine(this.RootPath, pair.Key)), pair.Value));
 		}
 
 		private static RevisionAction ConvertAction(Status status)
@@ -344,21 +334,21 @@ namespace MonoDevelop.VersionControl.Mercurial
 			return RevisionAction.Other;
 		}
 
-		private static bool IsProjectOrDirectory (FilePath localPath)
+		private static bool IsProjectOrDirectory(FilePath localPath)
 		{
-			return Directory.Exists (localPath) ||
-				MonoDevelop.Projects.Services.ProjectService.IsSolutionItemFile (localPath) ||
-				MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (localPath);
+			return Directory.Exists(localPath) ||
+				MonoDevelop.Projects.Services.ProjectService.IsSolutionItemFile(localPath) ||
+				MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile(localPath);
 		}
 
-		internal bool IsVersioned (FilePath localPath) 
+		internal bool IsVersioned(FilePath localPath)
 		{
-			if (string.IsNullOrEmpty (GetLocalBasePath (localPath.FullPath)))
+			if (string.IsNullOrEmpty(GetLocalBasePath(localPath.FullPath)))
 			{
 				return false;
 			}
 
-			var info = GetVersionInfo (localPath, VersionInfoQueryFlags.None);
+			var info = GetVersionInfo(localPath, VersionInfoQueryFlags.None);
 			return (null != info && info.IsVersioned);
 		}
 
@@ -383,16 +373,19 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public static string GetLocalBasePath(string localPath)
 		{
-			if (localPath == null)
+			while (true)
 			{
-				return string.Empty;
-			}
-			if (Directory.Exists(Path.Combine(localPath, ".hg")))
-			{
-				return localPath;
-			}
+				if (localPath == null)
+				{
+					return string.Empty;
+				}
+				if (Directory.Exists(Path.Combine(localPath, ".hg")))
+				{
+					return localPath;
+				}
 
-			return GetLocalBasePath(Path.GetDirectoryName(localPath));
+				localPath = Path.GetDirectoryName(localPath);
+			}
 		}
 
 		public virtual void Resolve(FilePath[] localPaths, bool recurse, IProgressMonitor monitor)
@@ -401,7 +394,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			{
 				try
 				{
-					_mercurialClient.Resolve(new[]{ localPath.FullPath.ToString() }, mark: true);
+					_mercurialClient.Resolve(new[] { localPath.FullPath.ToString() }, mark: true);
 				}
 				catch (Exception ce)
 				{
@@ -412,23 +405,23 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 		}
 
-		public virtual bool CanMerge (FilePath localPath)
+		public virtual bool CanMerge(FilePath localPath)
 		{
 			return _mercurialClient.Heads(null)
 				.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Message, null)).Count() > 1;
 		}
 
-		public virtual void Merge ()
+		public virtual void Merge()
 		{
 			_mercurialClient.Merge(null);
 		}
 
-		public virtual bool CanPull (FilePath localPath)
+		public virtual bool CanPull(FilePath localPath)
 		{
-			return IsProjectOrDirectory (localPath.FullPath) && IsVersioned (localPath);
+			return IsProjectOrDirectory(localPath.FullPath) && IsVersioned(localPath);
 		}
 
-		public virtual bool CanRebase ()
+		public virtual bool CanRebase()
 		{
 			//TODO Implement hg rebase
 			return false;
@@ -436,30 +429,31 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		public virtual Dictionary<string, BranchType> GetKnownBranches(FilePath path)
 		{
-			try 
+			try
 			{
-				return _mercurialClient.Paths().Aggregate (new Dictionary<string, BranchType> (), (dict, pair) => 
+				return _mercurialClient.Paths().Aggregate(new Dictionary<string, BranchType>(), (dict, pair) =>
 				{
 					dict[pair.Value] = BranchType.Parent;
 					return dict;
 				});
-			} catch (Exception ex) 
+			}
+			catch (Exception ex)
 			{
-				LoggingService.LogWarning ("Error getting known branches", ex);
+				LoggingService.LogWarning("Error getting known branches", ex);
 			}
 
 			return new Dictionary<string, BranchType>();
 		}
 
-		public virtual void Rebase (string pullLocation, FilePath localPath, bool remember, bool overwrite, IProgressMonitor monitor) 
+		public virtual void Rebase(string pullLocation, FilePath localPath, bool remember, bool overwrite, IProgressMonitor monitor)
 		{
 			//TODO Implement hg rebase
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 		}
 
-		internal bool IsModified (FilePath localFile)
+		internal bool IsModified(FilePath localFile)
 		{
-			if (string.IsNullOrEmpty(GetLocalBasePath (localFile.FullPath)))
+			if (string.IsNullOrEmpty(GetLocalBasePath(localFile.FullPath)))
 			{
 				return false;
 			}
@@ -469,41 +463,41 @@ namespace MonoDevelop.VersionControl.Mercurial
 			return (info != null && info.IsVersioned && info.HasLocalChanges);
 		}
 
-		public virtual void Push (string pushLocation, FilePath localPath, bool remember, bool overwrite, bool omitHistory, IProgressMonitor monitor) 
+		public virtual void Push(string pushLocation, FilePath localPath, bool remember, bool overwrite, bool omitHistory, IProgressMonitor monitor)
 		{
-			try 
+			try
 			{
-				_mercurialClient.Push (pushLocation, force: overwrite, allowNewBranch: overwrite);
-			} 
-			catch (Exception ex) 
+				_mercurialClient.Push(pushLocation, force: overwrite, allowNewBranch: overwrite);
+			}
+			catch (Exception ex)
 			{
-				monitor.ReportError (ex.Message, ex);
+				monitor.ReportError(ex.Message, ex);
 			}
 
-			monitor.ReportSuccess (string.Empty);
+			monitor.ReportSuccess(string.Empty);
 		}
 
 		public virtual void Pull(string selectedLocation, FilePath path, bool saveDefault, bool overwrite, IProgressMonitor progressMonitor)
 		{
-			try 
+			try
 			{
-				_mercurialClient.Pull (selectedLocation, update: true, force: overwrite);
-			} 
+				_mercurialClient.Pull(selectedLocation, update: true, force: overwrite);
+			}
 			catch (Exception ce)
 			{
-				progressMonitor.ReportError (ce.Message, ce);
+				progressMonitor.ReportError(ce.Message, ce);
 			}
-			progressMonitor.ReportSuccess (string.Empty);
+			progressMonitor.ReportSuccess(string.Empty);
 		}
 
 		public virtual void Export(FilePath localPath, FilePath exportLocation, IProgressMonitor monitor)
 		{
-			try 
+			try
 			{
 				_mercurialClient.Archive(exportLocation);
 				monitor.ReportSuccess(string.Empty);
-			} 
-			catch(Exception ex) 
+			}
+			catch (Exception ex)
 			{
 				monitor.ReportError(ex.Message, ex);
 			}
@@ -512,13 +506,13 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public Revision[] GetIncoming(string remote)
 		{
 			return _mercurialClient.Incoming(remote, null)
-				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
+				.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
 		}
 
 		public Revision[] GetOutgoing(string remote)
 		{
 			return _mercurialClient.Outgoing(remote, null)
-				.Select (r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
+				.Select(r => new MercurialRevision(this, r.RevisionId, r.Date, r.Author, r.Email, r.Message)).ToArray();
 		}
 	}
 }

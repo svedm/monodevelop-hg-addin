@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MonoDevelop.VersionControl.Mercurial
+﻿namespace MonoDevelop.VersionControl.Mercurial
 {
 	public enum BranchType
 	{

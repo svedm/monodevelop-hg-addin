@@ -3,6 +3,7 @@ using MonoDevelop.Components.Commands;
 using MonoDevelop.VersionControl.Mercurial.GUI;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MonoDevelop.Core;
 using MonoDevelop.Ide;
 
@@ -14,9 +15,10 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			MercurialVersionControl bvc = null;
 
-			foreach (var vcs in VersionControlService.GetVersionControlSystems ())
-				if (vcs is MercurialVersionControl)
-					bvc = (MercurialVersionControl)vcs;
+			foreach (var vcs in VersionControlService.GetVersionControlSystems().OfType<MercurialVersionControl>())
+			{
+				bvc = vcs;
+			}
 
 			info.Visible = (null != bvc && bvc.IsInstalled);
 		}
@@ -26,19 +28,20 @@ namespace MonoDevelop.VersionControl.Mercurial
 			var bsd = new MainDialog(new List<string>(), string.Empty, Environment.GetFolderPath(Environment.SpecialFolder.Personal), true, false, false, false);
 			try
 			{
-				if ((int)Gtk.ResponseType.Ok == bsd.Run() && !string.IsNullOrEmpty(bsd.SelectedLocation))
-				{
-					string branchLocation = bsd.SelectedLocation,
+				if ((int)Gtk.ResponseType.Ok != bsd.Run() || string.IsNullOrEmpty(bsd.SelectedLocation)) return;
+
+				string branchLocation = bsd.SelectedLocation,
 					branchName = GetLastChunk(branchLocation),
 					localPath = Path.Combine(bsd.LocalPath, (string.Empty == branchName) ? "branch" : branchName);
-					var worker = new VersionControlTask();
-					worker.Description = string.Format("Branching from {0} to {1}", branchLocation, localPath);
-					worker.Operation = delegate
-					{
-						DoBranch(branchLocation, localPath, worker.ProgressMonitor);
-					};
-					worker.Start();
-				}
+				var worker = new VersionControlTask
+				{
+					Description = string.Format("Branching from {0} to {1}", branchLocation, localPath)
+				};
+				worker.Operation = delegate
+				{
+					DoBranch(branchLocation, localPath, worker.ProgressMonitor);
+				};
+				worker.Start();
 			}
 			finally
 			{
@@ -53,65 +56,47 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			MercurialVersionControl bvc = null;
 
-			foreach (VersionControlSystem vcs in VersionControlService.GetVersionControlSystems ())
-				if (vcs is MercurialVersionControl)
-					bvc = (MercurialVersionControl)vcs;
+			foreach (var vcs in VersionControlService.GetVersionControlSystems().OfType<MercurialVersionControl>())
+			{ 
+				bvc = vcs;
+			}
 
 			if (null == bvc || !bvc.IsInstalled)
 				throw new Exception("Mercurial is not installed");
 
-			// Branch
 			bvc.Branch(location, localPath, monitor);
 
-			// Search for solution/project file in local branch;
-			// open if found
-			string[] list = System.IO.Directory.GetFiles(localPath);
+			var list = Directory.GetFiles(localPath);
 
 			ProjectCheck[] checks =
 				{
-					delegate (string path)
-					{
-						return path.EndsWith(".mds");
-					},
-					delegate (string path)
-					{
-						return path.EndsWith(".mdp");
-					},
+					path => path.EndsWith(".mds"),
+					path => path.EndsWith(".mdp"),
 					MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile
 				};
 
-			foreach (ProjectCheck check in checks)
+			foreach (var file in from check in checks from file in list where check(file) select file)
 			{
-				foreach (string file in list)
+				var file1 = file;
+				Gtk.Application.Invoke(delegate(object o, EventArgs ea)
 				{
-					if (check(file))
-					{
-						Gtk.Application.Invoke(delegate (object o, EventArgs ea)
-							{
-								IdeApp.Workspace.OpenWorkspaceItem(file);
-							});
-						return;
-					}
-				}
+					IdeApp.Workspace.OpenWorkspaceItem(file1);
+				});
+				return;
 			}
 		}
 
 		private static string GetLastChunk(string branchLocation)
 		{
-			string[] chunks = null,
-			separators = { "/", Path.DirectorySeparatorChar.ToString() };
-			string chunk = string.Empty;
+			string[] separators = { "/", Path.DirectorySeparatorChar.ToString() };
+			var chunk = string.Empty;
 
-			foreach (string separator in separators)
+			foreach (var chunks in from separator in separators where branchLocation.Contains(separator) select branchLocation.Split('/'))
 			{
-				if (branchLocation.Contains(separator))
+				for (var i = chunks.Length - 1; i >= 0; --i)
 				{
-					chunks = branchLocation.Split('/');
-					for (int i = chunks.Length - 1; i >= 0; --i)
-					{
-						if (string.Empty != (chunk = chunks[i].Trim()))
-							return chunk;
-					}
+					if (string.Empty != (chunk = chunks[i].Trim()))
+						return chunk;
 				}
 			}
 

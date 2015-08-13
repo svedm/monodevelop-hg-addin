@@ -1,5 +1,4 @@
-﻿using System;
-using Hg.Net.Models;
+﻿using Hg.Net.Models;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -9,7 +8,8 @@ namespace MonoDevelop.VersionControl.Mercurial
 		public readonly string Filename;
 		public Status Status;
 
-		public FileStatus (string revision, string filename, Status status) {
+		public FileStatus(string revision, string filename, Status status)
+		{
 			Revision = revision;
 			Filename = filename;
 			Status = status;

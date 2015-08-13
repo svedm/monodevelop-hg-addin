@@ -9,13 +9,13 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 	public class VersionControlTask
 	{
-		public string Description{ get; set; }
+		public string Description { get; set; }
 
-		public VersionControlOperation Operation{ get; set; }
+		public VersionControlOperation Operation { get; set; }
 
-		public IProgressMonitor ProgressMonitor{ get; protected set; }
+		public IProgressMonitor ProgressMonitor { get; protected set; }
 
-		public VersionControlTask() : this(string.Empty, null)	{ }
+		public VersionControlTask() : this(string.Empty, null) { }
 
 		public VersionControlTask(string description, VersionControlOperation operation)
 		{
