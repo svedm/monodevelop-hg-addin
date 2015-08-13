@@ -49,7 +49,7 @@ namespace Hg.Net
 				_cmdServer = Process.Start(serverInfo);
 				Hello();
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 				return false;
 			}

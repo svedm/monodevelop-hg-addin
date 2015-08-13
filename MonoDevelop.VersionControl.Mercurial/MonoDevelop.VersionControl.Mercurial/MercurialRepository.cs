@@ -23,7 +23,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			Url = url;
 			RootPath = new Uri(url).AbsolutePath;
-			_mercurialClient = new MercurialClient(new Uri(url).AbsolutePath, "/usr/local/bin/hg");
+			_mercurialClient = new MercurialClient(new Uri(url).AbsolutePath, null);
 		}
 
 		#region implemented abstract members of Repository
@@ -104,7 +104,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			try
 			{
-				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => Path.Combine(changeSet.BaseLocalPath, i.LocalPath)).ToArray());
+				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => Path.Combine(changeSet.BaseLocalPath, i.LocalPath.CanonicalPath)).ToArray());
 			}
 			catch (Exception ex)
 			{
@@ -112,6 +112,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 			}
 
 			monitor.ReportSuccess(string.Empty);
+			FileService.NotifyFileChanged(changeSet.BaseLocalPath);
 		}
 
 		protected override void OnCheckout(MonoDevelop.Core.FilePath targetLocalPath, Revision rev, bool recurse, MonoDevelop.Core.IProgressMonitor monitor)
