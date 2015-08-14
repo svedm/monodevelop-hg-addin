@@ -35,7 +35,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 
 		protected override Revision[] OnGetHistory(FilePath localFile, Revision since)
 		{
-			var revision = (MercurialRevision)since ?? new MercurialRevision(this, MercurialRevision.Head);
+			var revision = (MercurialRevision)since ?? new MercurialRevision(this, MercurialRevision.None);
 
 			return _mercurialClient.Log(revision.RevisionNumber,
 				new List<string> { localFile.FullPath })
