@@ -46,6 +46,16 @@
     <Compile Include="gtk-gui\MonoDevelop.VersionControl.Mercurial.GUI.PasswordDialog.cs" />
     <Compile Include="Models\BranchType.cs" />
     <Compile Include="BranchCommandHandler.cs" />
+    <Compile Include="Hg\Net\ArgumentHelper.cs" />
+    <Compile Include="Hg\Net\HgCommandServerClient.cs" />
+    <Compile Include="Hg\Net\MacDetector.cs" />
+    <Compile Include="Hg\Net\MercurialClient.cs" />
+    <Compile Include="Hg\Net\XmlHelper.cs" />
+    <Compile Include="Hg\Net\Models\Channel.cs" />
+    <Compile Include="Hg\Net\Models\CommandResponse.cs" />
+    <Compile Include="Hg\Net\Models\CommandServerRevision.cs" />
+    <Compile Include="Hg\Net\Models\ServerResponse.cs" />
+    <Compile Include="Hg\Net\Models\Status.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
@@ -59,9 +69,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoDevelop.VersionControl">
-      <HintPath>..\..\External\main\src\addins\VersionControl\MonoDevelop.VersionControl\obj\Debug\MonoDevelop.VersionControl.dll</HintPath>
-    </Reference>
     <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="gtk-dotnet, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
@@ -72,14 +79,10 @@
     <Reference Include="Mono.Posix" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hg.Net\Hg.Net.csproj">
-      <Project>{3C4B3DC5-4FFC-4413-BBF4-A723FEFE9809}</Project>
-      <Name>Hg.Net</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="GUI\" />
+    <Folder Include="Hg\" />
+    <Folder Include="Hg\Net\" />
   </ItemGroup>
   <ItemGroup>
     <AddinReference Include="MonoDevelop.VersionControl" />

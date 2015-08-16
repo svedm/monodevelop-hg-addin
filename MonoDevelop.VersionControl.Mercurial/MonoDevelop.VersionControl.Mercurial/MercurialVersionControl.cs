@@ -1,7 +1,6 @@
 ﻿using System;
-using Hg.Net;
 using MonoDevelop.Core;
-using MonoDevelop.VersionControl;
+using Hg.Net;
 
 namespace MonoDevelop.VersionControl.Mercurial
 {
@@ -24,10 +23,10 @@ namespace MonoDevelop.VersionControl.Mercurial
 			return new UrlBasedRepositoryEditor((MercurialRepository)repo);
 		}
 
-		protected override MonoDevelop.Core.FilePath OnGetRepositoryPath(MonoDevelop.Core.FilePath path, string id)
-		{
-			return path;
-		}
+//		protected override MonoDevelop.Core.FilePath OnGetRepositoryPath(MonoDevelop.Core.FilePath path, string id)
+//		{
+//			return path;
+//		}
 
 		public override string Name
 		{
