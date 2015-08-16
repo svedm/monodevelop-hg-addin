@@ -57,6 +57,11 @@ namespace Hg.Net
 			return true;
 		}
 
+		public void Disconnect()
+		{
+			_cmdServer.Close();
+		}
+
 		public static void Init(string path, string hgPath)
 		{
 			if (string.IsNullOrEmpty(path))
