@@ -104,7 +104,7 @@ namespace MonoDevelop.VersionControl.Mercurial
 		{
 			try
 			{
-				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => Path.Combine(changeSet.BaseLocalPath, i.LocalPath.CanonicalPath)).ToArray());
+				_mercurialClient.Commit(changeSet.GlobalComment, changeSet.Items.Select(i => i.LocalPath.ToString()).ToArray());
 			}
 			catch (Exception ex)
 			{
