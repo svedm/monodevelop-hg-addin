@@ -67,6 +67,7 @@
   <Import Project="..\packages\MonoDevelop.Addins.0.2.3\build\net40\MonoDevelop.Addins.targets" Condition="Exists('..\packages\MonoDevelop.Addins.0.2.3\build\net40\MonoDevelop.Addins.targets')" />
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="addin.info" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
@@ -86,10 +87,5 @@
   </ItemGroup>
   <ItemGroup>
     <AddinReference Include="MonoDevelop.VersionControl" />
-  </ItemGroup>
-  <ItemGroup>
-    <AddinFile Include="addin.info">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AddinFile>
   </ItemGroup>
 </Project>
