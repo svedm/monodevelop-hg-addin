@@ -1,0 +1,7 @@
+<AddinProject appVersion="5.9">
+	<Project>
+		<AddinFile>MonoDevelop.VersionControl.Mercurial/MonoDevelop.VersionControl.Mercurial/bin/Debug/MonoDevelop.VersionControl.dll</AddinFile>
+		<BuildFile>MonoDevelop.VersionControl.Mercurial/MonoDevelop.VersionControl.Mercurial.sln</BuildFile>
+		<BuildConfiguration>Debug</BuildConfiguration>
+	</Project>
+</AddinProject>
