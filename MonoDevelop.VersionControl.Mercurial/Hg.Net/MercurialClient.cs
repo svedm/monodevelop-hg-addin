@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Hg.Net
 {
-	public class MercurialClient
+	public class MercurialClient : IDisposable
 	{
 		private readonly HgCommandServerClient _hgClient;
 
@@ -570,6 +570,17 @@ namespace Hg.Net
 
 			HgCommandServerClient.Execute(mercurialPath, argumentHelper.ToString());
 		}
+		#region IDisposable implementation
+
+		public void Dispose()
+		{
+			if (_hgClient != null)
+			{
+				_hgClient.Disconnect();
+			}
+		}
+
+		#endregion
 	}
 }
 
