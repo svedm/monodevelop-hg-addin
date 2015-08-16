@@ -26,7 +26,7 @@ namespace Hg.Net
 			_hgClient.Connect(repoPath);
 		}
 
-		public static string DefaultHgPath 
+		public static string DefaultHgPath
 		{
 			get
 			{
@@ -143,7 +143,10 @@ namespace Hg.Net
 			argumentHelper.AddIf(limit > 0, "--limit", limit.ToString());
 			argumentHelper.AddIf(fromDate != default(DateTime) && toDate != default(DateTime),
 				string.Format("{0} to {1}", fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
-			argumentHelper.AddIf(files != null, files.ToArray());
+			if (files != null)
+			{
+				argumentHelper.Add(files.ToArray());
+			}
 
 			var resp = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (resp.ResultCode != 0)
@@ -353,7 +356,7 @@ namespace Hg.Net
 			return statuses;
 		}
 
-		public IEnumerable<CommandServerRevision> Heads(IEnumerable<string> revisions, string startRevision=null, bool onlyTopologicalHeads=false, bool showClosed=false)
+		public IEnumerable<CommandServerRevision> Heads(IEnumerable<string> revisions, string startRevision = null, bool onlyTopologicalHeads = false, bool showClosed = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("heads", "--style", "xml");
@@ -372,17 +375,17 @@ namespace Hg.Net
 				throw new Exception("Error getting heads");
 			}
 
-			try 
+			try
 			{
 				return XmlHelper.GetRevisions(result.Response);
 			}
-			catch (XmlException ex) 
+			catch (XmlException ex)
 			{
 				throw new Exception("Error parsing heads: " + ex.Message);
 			}
 		}
 
-		public bool Merge(string revision, bool force=false, string mergeTool=null, bool dryRun=false)
+		public bool Merge(string revision, bool force = false, string mergeTool = null, bool dryRun = false)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("merge");
@@ -401,12 +404,12 @@ namespace Hg.Net
 			return result.ResultCode == 0;
 		}
 
-		public IDictionary<string,string> Paths(string name=null)
+		public IDictionary<string,string> Paths(string name = null)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("paths");
 
-			argumentHelper.AddIf(!string.IsNullOrEmpty (name), name);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(name), name);
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
 			if (result.ResultCode != 0)
@@ -415,16 +418,16 @@ namespace Hg.Net
 			}
 				
 			return result.Response
-				.Split (new[]{"\n"}, StringSplitOptions.RemoveEmptyEntries)
-				.Aggregate (new Dictionary<string,string>(), (dict,line) =>
+				.Split(new[]{ "\n" }, StringSplitOptions.RemoveEmptyEntries)
+				.Aggregate(new Dictionary<string,string>(), (dict, line) =>
 				{
-					var tokens = line.Split (new[]{'='}, 2);
-					dict[tokens[0].Trim ()] = tokens[1].Trim ();
+					var tokens = line.Split(new[]{ '=' }, 2);
+					dict[tokens[0].Trim()] = tokens[1].Trim();
 					return dict;
 				});
 		}
 
-		public bool Pull(string source, string toRevision=null, bool update=false, bool force=false, string branch=null)
+		public bool Pull(string source, string toRevision = null, bool update = false, bool force = false, string branch = null)
 		{
 			var argumentHelper = new ArgumentHelper();
 			argumentHelper.Add("pull");
@@ -433,7 +436,7 @@ namespace Hg.Net
 			argumentHelper.AddIf(update, "--update");
 			argumentHelper.AddIf(force, "--force");
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", branch);
-			argumentHelper.AddIf(!string.IsNullOrEmpty (source), source);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(source), source);
 
 
 			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
@@ -545,7 +548,7 @@ namespace Hg.Net
 			}
 		}
 
-		public static void Clone(string source, string destination, bool updateWorkingCopy=true, string updateToRevision=null, string cloneToRevision=null, string onlyCloneBranch=null, bool forcePullProtocol=false, bool compressData=true, string mercurialPath=null)
+		public static void Clone(string source, string destination, bool updateWorkingCopy = true, string updateToRevision = null, string cloneToRevision = null, string onlyCloneBranch = null, bool forcePullProtocol = false, bool compressData = true, string mercurialPath = null)
 		{
 			if (string.IsNullOrEmpty(source))
 			{
@@ -565,11 +568,69 @@ namespace Hg.Net
 			argumentHelper.AddIfNotNullOrEmpty(false, "--updaterev", updateToRevision);
 			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", cloneToRevision);
 			argumentHelper.AddIfNotNullOrEmpty(false, "--branch", onlyCloneBranch);
-			argumentHelper.Add (source);
-			argumentHelper.AddIf(!string.IsNullOrEmpty (destination), destination);
+			argumentHelper.Add(source);
+			argumentHelper.AddIf(!string.IsNullOrEmpty(destination), destination);
 
 			HgCommandServerClient.Execute(mercurialPath, argumentHelper.ToString());
 		}
+
+		public string Diff(string revision, IEnumerable<string> files, string changeset = null, bool diffBinaries = false, bool useGitFormat = false, bool showDates = true, bool showFunctionNames = false, bool reverse = false, bool ignoreWhitespace = false, bool ignoreWhitespaceOnlyChanges = false, bool ignoreBlankLines = false, int contextLines = 0, string includePattern = null, string excludePattern = null, bool recurseSubRepositories = false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("diff");
+
+			argumentHelper.AddIfNotNullOrEmpty(false, "--rev", revision);
+			argumentHelper.AddIfNotNullOrEmpty(false, "--change", changeset);
+			argumentHelper.AddIf(diffBinaries, "--text");
+			argumentHelper.AddIf(useGitFormat, "--git");
+			argumentHelper.AddIf(!showDates, "--nodates");
+			argumentHelper.AddIf(showFunctionNames, "--show-function");
+			argumentHelper.AddIf(reverse, "--reverse");
+			argumentHelper.AddIf(ignoreWhitespace, "--ignore-all-space");
+			argumentHelper.AddIf(ignoreWhitespaceOnlyChanges, "--ignore-space-change");
+			argumentHelper.AddIf(ignoreBlankLines, "--ignore-blank-lines");
+			argumentHelper.AddIfNotNullOrEmpty(false, includePattern, "--include");
+			argumentHelper.AddIfNotNullOrEmpty(false, excludePattern, "--exclude");
+			argumentHelper.AddIf(recurseSubRepositories, "--subrepos");
+			if (contextLines > 0)
+			{
+				argumentHelper.Add("--unified");
+				argumentHelper.Add(contextLines.ToString());
+			}
+
+			if (files != null)
+				argumentHelper.Add(files.ToArray());
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			if (result.ResultCode != 0)
+			{
+				throw new Exception("Error getting diff");
+			}
+
+			return result.Response;
+		}
+
+		public string Summary(bool b)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Rename(string foo, string foo2)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool Rollback(bool force = false)
+		{
+			var argumentHelper = new ArgumentHelper();
+			argumentHelper.Add("rollback");
+
+			argumentHelper.AddIf(force, "--force");
+
+			var result = _hgClient.ExecuteCommand(argumentHelper.GetList());
+			return result.ResultCode == 0;
+		}
+
 		#region IDisposable implementation
 
 		public void Dispose()
