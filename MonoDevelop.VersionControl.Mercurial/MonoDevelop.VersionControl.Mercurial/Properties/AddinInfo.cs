@@ -8,7 +8,9 @@ using Mono.Addins.Description;
 	Version = "1.0"
 )]
 
-[assembly:AddinName("MonoDevelop.VersionControl.Mercurial")]
-[assembly:AddinCategory("IDE extensions")]
+[assembly:AddinName("Mercurial support")]
+[assembly:AddinCategory("Version Control")]
 [assembly:AddinDescription("MonoDevelop.VersionControl.Mercurial")]
 [assembly:AddinAuthor("Svetoslav Karasev")]
+[assembly:AddinDescription("Provides support for the Mercurial version control system")]
+[assembly:AddinUrl("https://github.com/svedm/monodevelop-hg-addin")]
