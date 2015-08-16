@@ -1,0 +1,18 @@
+﻿﻿<?xml version="1.0" encoding="utf-8"?>
+<Addin id="VersionControl.Mercurial" 
+	   version="1.0" 
+	   namespace="MonoDevelop" 
+	   name="Mercurial support" 
+	   author="Svetoslav Karasev" 
+	   url="https://github.com/svedm/monodevelop-hg-addin"
+	   description="Provides support for the Mercurial version control system" 
+	   category="Version Control">
+  <Runtime>    
+    <Import assembly="MonoDevelop.VersionControl.Mercurial.dll" />
+  </Runtime>
+  <Dependencies>
+    <Addin id="Core" version="5.9" />
+    <Addin id="Ide" version="5.9" />
+    <Addin id="VersionControl" version="5.9" />
+  </Dependencies>
+</Addin>
