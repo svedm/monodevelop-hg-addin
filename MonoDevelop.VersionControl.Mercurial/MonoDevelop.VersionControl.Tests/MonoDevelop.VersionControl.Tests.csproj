@@ -32,10 +32,17 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="MonoDevelop.VersionControl">
+      <HintPath>..\..\External\main\src\addins\VersionControl\MonoDevelop.VersionControl\obj\Debug\MonoDevelop.VersionControl.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Core">
+      <HintPath>..\..\External\main\build\bin\MonoDevelop.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestsUtils.cs" />
     <Compile Include="MercurialClientTests.cs" />
+    <Compile Include="BaseRepositoryTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
