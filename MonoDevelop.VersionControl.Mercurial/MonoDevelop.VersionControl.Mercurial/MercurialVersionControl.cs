@@ -6,10 +6,6 @@ namespace MonoDevelop.VersionControl.Mercurial
 {
 	public class MercurialVersionControl : VersionControlSystem
 	{
-		public MercurialVersionControl()
-		{
-		}
-
 		#region implemented abstract members of VersionControlSystem
 
 		protected override Repository OnCreateRepositoryInstance()
