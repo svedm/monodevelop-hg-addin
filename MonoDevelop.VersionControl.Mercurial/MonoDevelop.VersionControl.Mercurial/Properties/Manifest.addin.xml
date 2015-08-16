@@ -1,7 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ExtensionModel>
-	<Runtime>
-    </Runtime>
 	<Extension path="/MonoDevelop/VersionControl/VersionControlSystems">
 		<Class class="MonoDevelop.VersionControl.Mercurial.MercurialVersionControl"/>
 	</Extension>
